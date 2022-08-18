@@ -36,7 +36,7 @@ const DefaultFlagHelpTemplate = `{{if .HasAvailableInheritedFlags}}Flags availab
 `
 
 const ExtendedHelpText = `
-DefaultBinaryName - Webcam fetcher.
+DefaultBinaryName - A simple automated webcam fetcher written in GoLang.
 
 This tool is a basic webcam image puller. It can:
 1. Pull any arbitrary image.

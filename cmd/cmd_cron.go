@@ -120,7 +120,7 @@ func cmdCronRunFunc(_ *cobra.Command, args []string) {
 		cronString = strings.ReplaceAll(cronString, ".", "*")
 		ResetArgs(args[5:]...)
 
-		Cron.Scheduler = gocron.NewScheduler(time.UTC)
+		Cron.Scheduler = gocron.NewScheduler(time.Local)
 		Cron.Scheduler = Cron.Scheduler.Cron(cronString)
 		Cron.Scheduler = Cron.Scheduler.SingletonMode()
 
@@ -213,7 +213,7 @@ func cmdCronListFunc(_ *cobra.Command, _ []string) {
 
 
 func timeStamp() string {
-	return time.Now().UTC().Format(time.UnixDate) + " : "
+	return time.Now().Local().Format(time.UnixDate) + " : "
 }
 func LogPrint(format string, args ...interface{}) {
 	format = timeStamp() + format

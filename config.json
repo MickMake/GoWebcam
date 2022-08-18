@@ -22,9 +22,30 @@
 		}
 	],
 	"timeout": 30000000,
-	"dir": "./images",
+	"dir": "images",
 	"cron": "30 */5 * * * *",
 	"rename": {
 		"by_time": "5m"
-	}
+	},
+	"report": {
+		"level": "jobs",
+		"cron": "00 00 */1 * * *"
+	},
+	"scripts": [
+		{
+			"cron": "00 01 21 * * *",
+			"cmd": "./process_yearly_tl.sh",
+			"args": []
+		},
+		{
+			"cron": "00 56 * * * *",
+			"cmd": "./process_daily_tl.sh",
+			"args": []
+		},
+		{
+			"cron": "30 00 00 * * *",
+			"cmd": "uname",
+			"args": ["-a"]
+		}
+	]
 }

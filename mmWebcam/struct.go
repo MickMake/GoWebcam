@@ -333,15 +333,35 @@ func (m *Webcam) GetFilename() string {
 	return ret
 }
 
-func (m *Webcam) LogOpen() error {
+func (m *Webcam) GetDir() string {
+	var ret string
+
 	for range Only.Once {
 		d := time.Now().Format("20060102")
-		fp := filepath.Join(m.Dir, m.Prefix, d, fmt.Sprintf("%s.log", m.Prefix))
+		ret = filepath.Join(m.Dir, m.Prefix, d)
+
+		if !DirExists(ret) {
+			m.err = Mkdir(ret)
+			if m.err != nil {
+				break
+			}
+		}
+	}
+
+	return ret
+}
+
+func (m *Webcam) LogOpen() error {
+	for range Only.Once {
+		fp := m.GetDir()
+		fp = filepath.Join(fp, m.Prefix + ".log")
+
 		m.logfile, m.err = os.OpenFile(fp, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		if m.err != nil {
 			break
 		}
 	}
+
 	return m.err
 }
 

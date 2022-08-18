@@ -9,7 +9,9 @@ import (
 	"github.com/go-co-op/gocron"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
+	"os/exec"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -29,7 +31,7 @@ func AttachCmdWeb(cmd *cobra.Command) *cobra.Command {
 		Args:                  cobra.MinimumNArgs(1),
 	}
 	cmd.AddCommand(cmdWeb)
-	cmdWeb.Example = PrintExamples(cmdWeb, "run", "sync")
+	cmdWeb.Example = PrintExamples(cmdWeb, "run", "cron")
 
 	// ******************************************************************************** //
 	var cmdWebGet = &cobra.Command{
@@ -170,11 +172,7 @@ func cmdWebCronFunc(_ *cobra.Command, args []string) error {
 			break
 		}
 
-		// Webcams.Images[0].GetLastFile()
-
-		Cron.Scheduler = gocron.NewScheduler(time.UTC)
-		// Cron.Scheduler = Cron.Scheduler.Cron(config.Cron)
-		// Cron.Scheduler = Cron.Scheduler.SingletonMode()
+		Cron.Scheduler = gocron.NewScheduler(time.Local)
 
 		crontab := make(map[string]*gocron.Job)
 		for index, webcam := range Webcams.Images {
@@ -187,57 +185,46 @@ func cmdWebCronFunc(_ *cobra.Command, args []string) error {
 			crontab[webcam.Prefix] = job
 		}
 
+		if Webcams.Report.Cron != "" {
+			_, Cmd.Error = Cron.Scheduler.CronWithSeconds(Webcams.Report.Cron).StartImmediately().Tag("report").Do(PrintJobs)
+		}
+
+		for index := range Webcams.Scripts {
+			name := fmt.Sprintf("script-%d", index)
+			// name := Webcams.Scripts[index].Cmd + " " + strings.Join(Webcams.Scripts[index].Args, " ")
+			// _, Cmd.Error = Cron.Scheduler.CronWithSeconds(Webcams.Scripts[index].Cron).Tag(name).Do(func() {
+			// 	RunCommand(Webcams.Scripts[index].Cmd, Webcams.Scripts[index].Args...)
+			// })
+			_, Cmd.Error = Cron.Scheduler.CronWithSeconds(Webcams.Scripts[index].Cron).Tag(name).Do(RunScript, name)
+		}
+
 		// fmt.Println(Cron.Scheduler.Location())
 		// fmt.Println(Cron.Scheduler.Jobs())
 		// fmt.Println(Cron.Scheduler.NextRun())
 
 		Cron.Scheduler.RunAll()
-
-		Cron.Scheduler.StartAsync()
+		// PrintJobs()
+		Cron.Scheduler.StartBlocking()
 
 		if !Cron.Scheduler.IsRunning() {
 			Cmd.Error = errors.New("cron scheduler has not started")
 			break
 		}
 
-		updateCounter := 0
-		timer := time.NewTicker(60 * time.Second)
-		for t := range timer.C {
-			LogPrintDate("Schedule: %s\n", t.Format("2006/01/02 15:04:05"))
-			buf := new(bytes.Buffer)
-			table := tablewriter.NewWriter(buf)
-			table.SetHeader([]string{"Webcam", "Last Run", "Next Run", "Run Count", "Running", "Error"})
+		// updateCounter := 0
+		// timer := time.NewTicker(60 * time.Second)
+		// for range timer.C {
+		// 	if updateCounter < 5 {
+		// 		updateCounter++
+		// 		// LogPrintDate("Sleeping: %d\n", updateCounter)
+		// 		continue
+		// 	}
+		// 	updateCounter = 0
+		//
+		// 	PrintJobs()
+		// }
 
-			var jobs []string
-			for key := range crontab {
-				jobs = append(jobs, key)
-			}
-			sort.Strings(jobs)
-			for _, key := range jobs {
-				job := crontab[key]
-				// fmt.Printf("%s:\tLast:%s\tNext:%s\tRuns:%d\tRunning:%v\tError:%v\n",
-				table.Append([]string {
-					strings.Join(job.Tags(), " "),
-					job.LastRun().Format("2006/01/02 15:04:05"),
-					job.NextRun().Format("2006/01/02 15:04:05"),
-					fmt.Sprintf("%d", job.RunCount()),
-					fmt.Sprintf("%v", job.IsRunning()),
-					fmt.Sprintf("%v", job.Error()),
-					// job.ScheduledAtTime(),
-				})
-			}
-			table.Render()
-			fmt.Println(buf.String())
-
-			if updateCounter < 5 {
-				updateCounter++
-				// LogPrintDate("Sleeping: %d\n", updateCounter)
-				continue
-			}
-			updateCounter = 0
-		}
-
-		time.Sleep(time.Minute * 5)
+		time.Sleep(time.Hour * 5)
 		Cron.Scheduler.Stop()
 		fmt.Println(Cron.Scheduler.IsRunning())
 
@@ -248,6 +235,78 @@ func cmdWebCronFunc(_ *cobra.Command, args []string) error {
 	}
 
 	return Cmd.Error
+}
+
+func PrintJobs() {
+	for range Only.Once {
+		LogPrintDate("PrintJobs: %s\n", time.Now().Format("2006/01/02 15:04:05"))
+
+		crontab := make(map[string]*gocron.Job)
+		var jobs []string
+		for _, key := range Cron.Scheduler.Jobs() {
+			name := strings.Join(key.Tags(), " ")
+			crontab[name] = key
+			jobs = append(jobs, name)
+		}
+		sort.Strings(jobs)
+
+		buf := new(bytes.Buffer)
+		table := tablewriter.NewWriter(buf)
+		table.SetHeader([]string{"Webcam", "Last Run", "Next Run", "Run Count", "Running", "Error"})
+		for _, key := range jobs {
+			job := crontab[key]
+			table.Append([]string {
+				strings.Join(job.Tags(), " "),
+				job.LastRun().Format("2006/01/02 15:04:05"),
+				job.NextRun().Format("2006/01/02 15:04:05"),
+				fmt.Sprintf("%d", job.RunCount()),
+				fmt.Sprintf("%v", job.IsRunning()),
+				fmt.Sprintf("%v", job.Error()),
+				// job.ScheduledAtTime(),
+			})
+		}
+		table.Render()
+		fmt.Println(buf.String())
+	}
+}
+
+func RunScript(name string) {
+
+	for range Only.Once {
+		id := -1
+		for _, key := range Cron.Scheduler.Jobs() {
+			if strings.Join(key.Tags(), " ") != name {
+				continue
+			}
+			ids := strings.Join(key.Tags(), "")
+			ids = strings.TrimPrefix(ids, "script-")
+			i, err := strconv.Atoi(ids)
+			if err != nil {
+				break
+			}
+			id = i
+			break
+		}
+		if id == -1 {
+			break
+		}
+
+		if id >= len(Webcams.Scripts) {
+			break
+		}
+
+		job := Webcams.Scripts[id]
+		LogPrintDate("RunCommand: %s\n", time.Now().Format("2006/01/02 15:04:05"))
+		LogPrintDate("Exec START: %s %v\n", job.Cmd, job.Args)
+
+		c := exec.Command(job.Cmd, job.Args...)
+		out, err := c.CombinedOutput()
+		if err != nil {
+			break
+		}
+		LogPrint("\n%s\n", string(out))
+		LogPrintDate("Exec STOP: %s %v\n", job.Cmd, job.Args)
+	}
 }
 
 func WebCron() error {

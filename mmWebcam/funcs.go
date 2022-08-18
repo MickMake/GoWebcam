@@ -140,6 +140,41 @@ func TimeNow() string {
 	return time.Now().Format("2006-01-02 15:04:05")
 }
 
+func DirExists(fn string) bool {
+	var yes bool
+	for range Only.Once {
+		f, err := os.Stat(fn)
+
+		if errors.Is(err, os.ErrNotExist) {
+			yes = false
+			break
+		}
+
+		if !f.IsDir() {
+			yes = false
+			break
+		}
+
+		if err == nil {
+			yes = true
+			break
+		}
+
+		if errors.Is(err, os.ErrNotExist) {
+			yes = false
+			break
+		}
+
+		if err != nil {
+			// Schrodinger: file may or may not exist. See err for details.
+			// Do *NOT* use !os.IsNotExist(err) to test for file existence
+			yes = false
+			break
+		}
+	}
+	return yes
+}
+
 func FileExists(fn string) bool {
 	var yes bool
 	for range Only.Once {

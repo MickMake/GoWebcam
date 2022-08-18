@@ -16,6 +16,17 @@ type Config struct {
 	Cron     string        `json:"cron,omitempty"`
 	Rename   Rename        `json:"rename,omitempty"`
 
+	Report struct {
+		Cron  string `json:"cron,omitempty"`
+		Level string `json:"level,omitempty"`
+	} `json:"report,omitempty"`
+
+	Scripts []struct {
+		Cron  string `json:"cron,omitempty"`
+		Cmd string `json:"cmd,omitempty"`
+		Args []string `json:"args,omitempty"`
+	} `json:"scripts,omitempty"`
+
 	Error    error         `json:"-"`
 }
 
