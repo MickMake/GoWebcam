@@ -127,7 +127,14 @@ func cmdDaemonKillFunc(_ *cobra.Command, _ []string) error {
 		}
 
 		fmt.Printf("Killing daemon. PID: %d\n", pid)
-		Cmd.Error = syscall.Kill(pid, syscall.SIGTERM)
+		// Cmd.Error = syscall.Kill(pid, syscall.SIGTERM)
+		var p *os.Process
+		p, Cmd.Error = os.FindProcess(pid)
+		if Cmd.Error != nil {
+			break
+		}
+
+		Cmd.Error = p.Signal(syscall.SIGTERM)
 		if Cmd.Error != nil {
 			break
 		}
@@ -150,7 +157,17 @@ func cmdDaemonReloadFunc(_ *cobra.Command, _ []string) error {
 		}
 
 		fmt.Printf("Reloading daemon. PID: %d\n", pid)
-		Cmd.Error = syscall.Kill(pid, syscall.SIGHUP)
+		// Cmd.Error = syscall.Kill(pid, syscall.SIGHUP)
+		var p *os.Process
+		p, Cmd.Error = os.FindProcess(pid)
+		if Cmd.Error != nil {
+			break
+		}
+
+		Cmd.Error = p.Signal(syscall.SIGTERM)
+		if Cmd.Error != nil {
+			break
+		}
 	}
 
 	return Cmd.Error
