@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/go-co-op/gocron"
 	"github.com/spf13/cobra"
+	"log"
 	"os"
 	"strings"
 	"time"
@@ -129,8 +130,8 @@ func cmdCronRunFunc(_ *cobra.Command, args []string) {
 			break
 		}
 
-		LogPrint("Created job schedule using '%s'\n", cronString)
-		LogPrint("Job command '%s'\n", strings.Join(os.Args, " "))
+		LogPrintf("Created job schedule using '%s'\n", cronString)
+		LogPrintf("Job command '%s'\n", strings.Join(os.Args, " "))
 
 		Cron.Scheduler.StartBlocking()
 		if Cmd.Error != nil {
@@ -215,14 +216,14 @@ func cmdCronListFunc(_ *cobra.Command, _ []string) {
 func timeStamp() string {
 	return time.Now().Local().Format(time.UnixDate) + " : "
 }
-func LogPrint(format string, args ...interface{}) {
-	format = timeStamp() + format
-	fmt.Printf(format, args...)
+func LogPrintf(format string, args ...interface{}) {
+	// format = timeStamp() + format
+	log.Printf(format, args...)
 }
 
 func LogPrintDate(format string, args ...interface{}) {
-	fmt.Printf("%s ", TimeNow())
-	fmt.Printf(format, args...)
+	// log.Printf("%s ", TimeNow())
+	log.Printf(format, args...)
 	// fmt.Println()
 }
 
@@ -232,14 +233,14 @@ func TimeNow() string {
 
 func ReExecute() error {
 	for range Only.Once {
-		LogPrint("Running scheduled command '%s'\n", strings.Join(os.Args, " "))
+		LogPrintf("Running scheduled command '%s'\n", strings.Join(os.Args, " "))
 		// LogPrint("Last run '%s'\n", Cron.Job.LastRun().Format(time.UnixDate))
-		LogPrint("Next run '%s'\n", Cron.Job.ScheduledTime().Format(time.UnixDate))
-		LogPrint("Run count '%d'\n", Cron.Job.RunCount())
+		LogPrintf("Next run '%s'\n", Cron.Job.ScheduledTime().Format(time.UnixDate))
+		LogPrintf("Run count '%d'\n", Cron.Job.RunCount())
 
 		Cmd.Error = rootCmd.Execute()
 		if Cmd.Error != nil {
-			LogPrint("ERROR: %s\n", Cmd.Error)
+			LogPrintf("ERROR: %s\n", Cmd.Error)
 			break
 		}
 	}
@@ -249,10 +250,8 @@ func ReExecute() error {
 
 func ResetArgs(args ...string) {
 	for range Only.Once {
-		// fmt.Printf("oldArgs: %v\n", os.Args)
 		newArgs := []string{os.Args[0]}
 		newArgs = append(newArgs, args...)
 		os.Args = newArgs
-		// fmt.Printf("newArgs: %v\n", os.Args)
 	}
 }

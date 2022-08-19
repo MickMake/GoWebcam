@@ -3,6 +3,7 @@ package mmWebcam
 import (
 	"GoWebcam/Only"
 	"encoding/json"
+	"log"
 	"os"
 	"time"
 )
@@ -14,6 +15,8 @@ type Config struct {
 	Timeout  time.Duration `json:"timeout,omitempty"`
 	Dir      string        `json:"dir,omitempty"`
 	Cron     string        `json:"cron,omitempty"`
+	Logfile  string        `json:"logfile,omitempty"`
+
 	Rename   Rename        `json:"rename,omitempty"`
 
 	Report struct {
@@ -48,6 +51,16 @@ func (c *Config) Read(fp string) (*Config, error) {
 		err = json.Unmarshal(data, c)
 		if err != nil {
 			break
+		}
+
+		if c.Logfile != "" {
+			var lf *os.File
+			lf, err = os.OpenFile(c.Logfile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+			if err != nil {
+				break
+			}
+			log.SetOutput(lf)
+			// log.SetOutput(io.MultiWriter(os.Stdout, logFile))
 		}
 
 		if c.Dir == "" {
@@ -175,67 +188,6 @@ type Rename struct {
 	duration time.Duration
 	OCR      string `json:"by_ocr,omitempty"`
 }
-
-// func (c *Rename) Filename(fn string) string {
-// 	for range Only.Once {
-// 		if c.ByTime != "" {
-// 			d, err := time.ParseDuration(c.ByTime)
-// 			if err != nil {
-// 				break
-// 			}
-// 			fmt.Printf("%v\n", d)
-//
-// 			// match := strings.FieldsFunc(fn, func(r rune) bool {
-// 			// 	if r == '_' {
-// 			// 		return true
-// 			// 	}
-// 			// 	if r == '-' {
-// 			// 		return true
-// 			// 	}
-// 			// 	return false
-// 			// })
-//
-// 			// Gotta be a better way.
-// 			match := strings.Split(fn,"-")
-//
-//
-// 			// re := regexp.MustCompile(`[-]?\d[\d,]*[\.]?[\d{2}]*`)
-// 			re := regexp.MustCompile(`[\d{6,8}]+`)
-// 			if !re.MatchString(fn) {
-// 				// break
-// 			}
-//
-// 			match = re.FindAllString(fn, -1)
-// 			if len(match) != 2 {
-// 				break
-// 			}
-//
-// 			var ft time.Time
-// 			ft, err = time.Parse("20060102 150405", fmt.Sprintf("%s %s", match[0], match[1]))
-// 			if err != nil {
-// 				break
-// 			}
-//
-// 			fmt.Printf("Before: %v\n", ft)
-// 			ft = ft.Round(d)
-// 			fmt.Printf("After: %v\n", ft)
-// 			fn = ft.Format("20060102 150405")
-//
-// 			break
-// 		}
-//
-// 		if c.ByOCR != "" {
-// 			break
-// 		}
-//
-// 		d := time.Now().Format("20060102")
-// 		t := time.Now().Format("150405")
-// 		s := filepath.Ext(m.url.Path)
-// 		ret = fmt.Sprintf("%s-%s_%s%s", m.Prefix, d, t, s)
-// 	}
-//
-// 	return fn
-// }
 
 
 func ReadConfig(fp string) (*Config, error) {

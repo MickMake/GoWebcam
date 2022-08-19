@@ -11,6 +11,7 @@ const (
 	flagConfigFile = "config"
 	flagDebug      = "debug"
 	flagQuiet      = "quiet"
+	flagDaemonize   = "daemon"
 
 	flagWebHost     = "host"
 	flagWebPort     = "port"

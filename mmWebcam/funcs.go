@@ -9,52 +9,9 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"regexp"
-	"strings"
 	"time"
 )
 
-
-func JoinStrings(args ...string) string {
-	return strings.TrimSpace(strings.Join(args, " "))
-}
-
-func JoinStringsForId(args ...string) string {
-	var newargs []string
-	var re = regexp.MustCompile(`(/| |:)+`)
-	for _, a := range args {
-		if a == "" {
-			continue
-		}
-		a = strings.TrimSpace(a)
-		a = re.ReplaceAllString(a, `_`)
-		newargs = append(newargs, a)
-	}
-	// return strings.ReplaceAll(strings.TrimSpace(strings.Join(args, ".")), ".", "_")
-	return strings.Join(newargs, "-")
-}
-
-// func (c *Config) JoinStringsForId() string {
-// 	return JoinStringsForId(m.Device.FullName, c.ParentName, c.FullName)
-// }
-
-func JoinStringsForTopic(args ...string) string {
-	var newargs []string
-	var re = regexp.MustCompile(`( |:)+`)
-	for _, a := range args {
-		if a == "" {
-			continue
-		}
-		a = strings.TrimSpace(a)
-		a = re.ReplaceAllString(a, `_`)
-		newargs = append(newargs, a)
-	}
-	// return strings.ReplaceAll(strings.TrimSpace(strings.Join(args, ".")), ".", "_")
-	return strings.Join(newargs, "/")
-
-	// ret := strings.ReplaceAll(strings.Join(args, "/"), "//", "/")
-	// return ret
-}
 
 func Mkdir(dir ...string) error {
 	var err error
@@ -113,18 +70,6 @@ func Md5HashFile(filename string) string {
 	return ret
 }
 
-
-func timeStamp() string {
-	return time.Now().Format(time.UnixDate) + " : "
-}
-func LogPrint(format string, args ...interface{}) {
-	fmt.Printf("%s", LogSprintf(format, args...))
-}
-
-func LogPrintDate(format string, args ...interface{}) {
-	fmt.Printf("%s", LogSprintfDate(format, args...))
-}
-
 func LogSprintf(format string, args ...interface{}) string {
 	// format = timeStamp() + format
 	return fmt.Sprintf(format, args...)
@@ -142,6 +87,7 @@ func TimeNow() string {
 
 func DirExists(fn string) bool {
 	var yes bool
+
 	for range Only.Once {
 		f, err := os.Stat(fn)
 
@@ -172,6 +118,7 @@ func DirExists(fn string) bool {
 			break
 		}
 	}
+
 	return yes
 }
 

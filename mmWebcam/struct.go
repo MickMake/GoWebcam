@@ -85,6 +85,7 @@ func (m *Webcam) IsError() bool {
 
 func (m *Webcam) IsNewDay() bool {
 	var yes bool
+
 	for range Only.Once {
 		last := m.lastRefresh.Format("20060102")
 		now := time.Now().Format("20060102")
@@ -94,6 +95,7 @@ func (m *Webcam) IsNewDay() bool {
 			break
 		}
 	}
+
 	return yes
 }
 
@@ -308,10 +310,7 @@ func (m *Webcam) GetFilename() string {
 			}
 
 			if m.Rename.duration != 0 {
-				// fmt.Printf("Duration: %v\n", m.Rename.duration)
-				// fmt.Printf("Before: %v\n", now)
 				now = now.Truncate(m.Rename.duration)
-				// fmt.Printf("After: %v\n", now)
 				break
 			}
 		}
@@ -396,24 +395,3 @@ func (m *Webcam) LogClose() error {
 	}
 	return m.err
 }
-
-// func (m *Web) GetMd5sum() string {
-// 	var ret string
-//
-// 	for range Only.Once {
-// 		dir := m.GetBaseDir()
-//
-// 		var files []string
-// 		m.err = filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
-// 			if !info.IsDir() {
-// 				files = append(files, path)
-// 			}
-// 			return nil
-// 		})
-//
-// 		sort.Strings(files)
-// 		ret = files[len(files)-1]
-// 	}
-//
-// 	return ret
-// }

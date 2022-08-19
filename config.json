@@ -1,4 +1,8 @@
 {
+	"timeout": 30000000,
+	"dir": "images",
+	"cron": "30 */5 * * * *",
+	"logfile": "GoWebcam.log",
 	"images": [
 		{
 			"prefix": "Basin",
@@ -21,9 +25,6 @@
 			"cron": "30 */5 * * * *"
 		}
 	],
-	"timeout": 30000000,
-	"dir": "images",
-	"cron": "30 */5 * * * *",
 	"rename": {
 		"by_time": "5m"
 	},

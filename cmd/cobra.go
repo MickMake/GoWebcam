@@ -10,6 +10,7 @@ import (
 	"strings"
 )
 
+
 var rootCmd *cobra.Command
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -49,17 +50,39 @@ func Execute() error {
 		rootViper = viper.New()
 		rootCmd = AttachRootCmd(nil)
 		_ = AttachCmdConfig(rootCmd)
-		// _ = AttachCmdApi(rootCmd)
-		// _ = AttachCmdData(rootCmd)
+		_ = AttachCmdDaemon(rootCmd)
 		_ = AttachCmdWeb(rootCmd)
-		// _ = AttachCmdGit(rootCmd)
-		// _ = AttachCmdGoogle(rootCmd)
 		_ = AttachCmdCron(rootCmd)
 		_ = AttachCmdVersion(rootCmd)
 		_ = AttachCmdHelpFlags(rootCmd)
 
 		// cobra.OnInitialize(initConfig)	// Bound to rootCmd now.
 		cobra.EnableCommandSorting = false
+
+		// var cntxt *daemon.Context
+		// if Cmd.Daemonize {
+		// 	cntxt = &daemon.Context {
+		// 		PidFileName: DefaultBinaryName + ".pid",
+		// 		PidFilePerm: 0644,
+		// 		LogFileName: DefaultBinaryName + "2.log",
+		// 		LogFilePerm: 0640,
+		// 		WorkDir:     "./",
+		// 		Umask:       027,
+		// 		Args:        Cmd.Args,
+		// 	}
+		//
+		// 	d, err := cntxt.Reborn()
+		// 	if err != nil {
+		// 		log.Fatal("Unable to run: ", err)
+		// 	}
+		// 	if d != nil {
+		// 		break
+		// 	}
+		// 	// defer
+		//
+		// 	log.Print("- - - - - - - - - - - - - - -")
+		// 	log.Print("daemon started")
+		// }
 
 		err := rootCmd.Execute()
 		if err != nil {
@@ -68,6 +91,10 @@ func Execute() error {
 		if Cmd.Error != nil {
 			break
 		}
+
+		// if Cmd.Daemonize {
+		// 	_ = cntxt.Release()
+		// }
 	}
 
 	return Cmd.Error

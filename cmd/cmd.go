@@ -42,6 +42,8 @@ func AttachRootCmd(cmd *cobra.Command) *cobra.Command {
 	rootCmd.PersistentFlags().StringVarP(&Cmd.WebPrefix, flagWebPrefix, "", defaultPrefix, fmt.Sprintf("Web password."))
 	rootViper.SetDefault(flagWebPrefix, defaultPrefix)
 
+	// rootCmd.PersistentFlags().BoolVarP(&Cmd.Daemonize, flagDaemonize, "d", false, fmt.Sprintf("Daemonize program."))
+	// rootViper.SetDefault(flagDaemonize, false)
 	rootCmd.PersistentFlags().StringVar(&Cmd.ConfigFile, flagConfigFile, Cmd.ConfigFile, fmt.Sprintf("%s: config file.", DefaultBinaryName))
 	// _ = rootCmd.PersistentFlags().MarkHidden(flagConfigFile)
 	rootCmd.PersistentFlags().BoolVarP(&Cmd.Debug, flagDebug, "", false, fmt.Sprintf("%s: Debug mode.", DefaultBinaryName))

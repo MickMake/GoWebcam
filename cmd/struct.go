@@ -10,14 +10,13 @@ import (
 
 
 type CommandArgs struct {
+	ConfigFile  string
 	ConfigDir   string
 	CacheDir    string
-	ConfigFile  string
-	WriteConfig bool
+
 	Quiet       bool
 	Debug       bool
-	OutputType  string
-	OutputFile  string
+	Daemonize	bool
 
 	// Web fetching
 	WebHost     string
