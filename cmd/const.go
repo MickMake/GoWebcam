@@ -4,7 +4,6 @@ import "time"
 
 //goland:noinspection SpellCheckingInspection
 const (
-	DefaultBinaryName = "GoWebcam"
 	EnvPrefix         = "WEBCAM"
 	defaultConfigFile = "config.json"
 

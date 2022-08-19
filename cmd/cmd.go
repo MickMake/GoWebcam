@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"GoWebcam/Only"
+	"GoWebcam/defaults"
+	"GoWebcam/mmVersion"
 	"fmt"
 	"github.com/spf13/cobra"
 )
@@ -10,9 +12,9 @@ import (
 func AttachRootCmd(cmd *cobra.Command) *cobra.Command {
 	// ******************************************************************************** //
 	var rootCmd = &cobra.Command{
-		Use:              DefaultBinaryName,
-		Short:            fmt.Sprintf("%s - Webcam fetcher", DefaultBinaryName),
-		Long:             fmt.Sprintf("%s - Webcam fetcher", DefaultBinaryName),
+		Use:              defaults.BinaryName,
+		Short:            fmt.Sprintf("%s - Webcam fetcher", defaults.BinaryName),
+		Long:             fmt.Sprintf("%s - Webcam fetcher", defaults.BinaryName),
 		Run:              gbRootFunc,
 		TraverseChildren: true,
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
@@ -27,7 +29,7 @@ func AttachRootCmd(cmd *cobra.Command) *cobra.Command {
 
 	rootCmd.SetHelpTemplate(DefaultHelpTemplate)
 	rootCmd.SetUsageTemplate(DefaultUsageTemplate)
-	rootCmd.SetVersionTemplate(DefaultVersionTemplate)
+	// rootCmd.SetVersionTemplate(DefaultVersionTemplate)
 
 	rootCmd.PersistentFlags().StringVarP(&Cmd.WebHost, flagWebHost, "", defaultHost, fmt.Sprintf("Web Host."))
 	rootViper.SetDefault(flagWebHost, defaultHost)
@@ -44,15 +46,22 @@ func AttachRootCmd(cmd *cobra.Command) *cobra.Command {
 
 	// rootCmd.PersistentFlags().BoolVarP(&Cmd.Daemonize, flagDaemonize, "d", false, fmt.Sprintf("Daemonize program."))
 	// rootViper.SetDefault(flagDaemonize, false)
-	rootCmd.PersistentFlags().StringVar(&Cmd.ConfigFile, flagConfigFile, Cmd.ConfigFile, fmt.Sprintf("%s: config file.", DefaultBinaryName))
+	rootCmd.PersistentFlags().StringVar(&Cmd.ConfigFile, flagConfigFile, Cmd.ConfigFile, fmt.Sprintf("%s: config file.", defaults.BinaryName))
 	// _ = rootCmd.PersistentFlags().MarkHidden(flagConfigFile)
-	rootCmd.PersistentFlags().BoolVarP(&Cmd.Debug, flagDebug, "", false, fmt.Sprintf("%s: Debug mode.", DefaultBinaryName))
+	rootCmd.PersistentFlags().BoolVarP(&Cmd.Debug, flagDebug, "", false, fmt.Sprintf("%s: Debug mode.", defaults.BinaryName))
 	rootViper.SetDefault(flagDebug, false)
-	rootCmd.PersistentFlags().BoolVarP(&Cmd.Quiet, flagQuiet, "q", false, fmt.Sprintf("%s: Silence all messages.", DefaultBinaryName))
+	rootCmd.PersistentFlags().BoolVarP(&Cmd.Quiet, flagQuiet, "q", false, fmt.Sprintf("%s: Silence all messages.", defaults.BinaryName))
 	rootViper.SetDefault(flagQuiet, false)
 
 	rootCmd.PersistentFlags().SortFlags = false
 	rootCmd.Flags().SortFlags = false
+
+	if CmdVersion == nil {
+		CmdVersion = mmVersion.New(defaults.BinaryName, defaults.BinaryVersion, defaults.Debug)
+		CmdVersion.SetBinaryRepo(defaults.BinaryRepo)
+		CmdVersion.SetSourceRepo(defaults.SourceRepo)
+		CmdVersion.LoadCommands(rootCmd, false)
+	}
 
 	return rootCmd
 }

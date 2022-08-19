@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"GoWebcam/Only"
+	"GoWebcam/defaults"
 	"GoWebcam/mmWebcam"
 	"errors"
 	"fmt"
@@ -179,11 +180,11 @@ func cmdDaemonListFunc(_ *cobra.Command, _ []string) error {
 		cntxt := &daemon.Context {
 			PidFileName: pidFile,
 			PidFilePerm: 0644,
-			LogFileName: DefaultBinaryName + "Daemon.log",
+			LogFileName: defaults.BinaryName + "Daemon.log",
 			LogFilePerm: 0640,
 			WorkDir:     "./",
 			Umask:       027,
-			Args:        []string{ fmt.Sprintf("[%s]", DefaultBinaryName) },
+			Args:        []string{ fmt.Sprintf("[%s]", defaults.BinaryName) },
 		}
 
 		var child *os.Process
@@ -226,7 +227,7 @@ func cmdDaemonListFunc(_ *cobra.Command, _ []string) error {
 }
 
 
-const pidFile = DefaultBinaryName + ".pid"
+const pidFile = defaults.BinaryName + ".pid"
 
 type DaemonFunc func(cmd *cobra.Command, args []string) error
 
@@ -234,14 +235,14 @@ func Daemonize(fn DaemonFunc, cmd *cobra.Command, args []string) error {
 	var err error
 
 	for range Only.Once {
-		nargs := []string{ fmt.Sprintf("[%s]", DefaultBinaryName) }
+		nargs := []string{ fmt.Sprintf("[%s]", defaults.BinaryName) }
 		nargs = append(nargs, args...)
 
 		// @TODO - Sort out this Daemon mess.
 		cntxt := &daemon.Context {
 			PidFileName: pidFile,
 			PidFilePerm: 0644,
-			LogFileName: DefaultBinaryName + "Daemon.log",
+			LogFileName: defaults.BinaryName + "Daemon.log",
 			LogFilePerm: 0640,
 			WorkDir:     "./",
 			Umask:       027,

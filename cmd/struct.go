@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"GoWebcam/Only"
+	"GoWebcam/mmVersion"
 	"GoWebcam/mmWebcam"
 	"errors"
 	"github.com/spf13/cobra"
@@ -34,6 +35,8 @@ type CommandArgs struct {
 
 var Cmd CommandArgs
 var Webcams     *mmWebcam.Config
+var CmdVersion *mmVersion.Version
+
 
 func (ca *CommandArgs) IsValid() error {
 	for range Only.Once {

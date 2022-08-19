@@ -26,9 +26,9 @@ Additional help topics:{{range .Commands}}{{if .IsAdditionalHelpTopicCommand }}
 Use "{{.CommandPath}} help [command]" for more information about a command.{{end}}
 `
 
-const DefaultVersionTemplate = `
-{{with .Name}}{{printf "%s " .}}{{end}}{{printf "version %s" .Version}}
-`
+// const DefaultVersionTemplate = `
+// {{with .Name}}{{printf "%s " .}}{{end}}{{printf "version %s" .Version}}
+// `
 
 //goland:noinspection GoUnusedConst
 const DefaultFlagHelpTemplate = `{{if .HasAvailableInheritedFlags}}Flags available for all commands:

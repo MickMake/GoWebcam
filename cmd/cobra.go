@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"GoWebcam/Only"
+	"GoWebcam/defaults"
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -21,7 +22,7 @@ func Execute() error {
 		if Cmd.Error != nil {
 			break
 		}
-		Cmd.ConfigDir = filepath.Join(Cmd.ConfigDir, "."+DefaultBinaryName)
+		Cmd.ConfigDir = filepath.Join(Cmd.ConfigDir, "." + defaults.BinaryName)
 		_, Cmd.Error = os.Stat(Cmd.ConfigDir)
 		if os.IsExist(Cmd.Error) {
 			break
@@ -35,7 +36,7 @@ func Execute() error {
 		if Cmd.Error != nil {
 			break
 		}
-		Cmd.CacheDir = filepath.Join(Cmd.CacheDir, "."+DefaultBinaryName, "cache")
+		Cmd.CacheDir = filepath.Join(Cmd.CacheDir, "." + defaults.BinaryName, "cache")
 		_, Cmd.Error = os.Stat(Cmd.CacheDir)
 		if os.IsExist(Cmd.Error) {
 			break
@@ -53,7 +54,7 @@ func Execute() error {
 		_ = AttachCmdDaemon(rootCmd)
 		_ = AttachCmdWeb(rootCmd)
 		_ = AttachCmdCron(rootCmd)
-		_ = AttachCmdVersion(rootCmd)
+		// _ = AttachCmdVersion(rootCmd)
 		_ = AttachCmdHelpFlags(rootCmd)
 
 		// cobra.OnInitialize(initConfig)	// Bound to rootCmd now.

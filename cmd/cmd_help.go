@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"GoWebcam/Only"
+	"GoWebcam/defaults"
 	"fmt"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
@@ -141,5 +142,5 @@ func PrintFlagEnv(flag string) string {
 }
 
 func ExtendedHelp() {
-	fmt.Println(strings.ReplaceAll(ExtendedHelpText, "DefaultBinaryName", DefaultBinaryName))
+	fmt.Println(strings.ReplaceAll(ExtendedHelpText, "DefaultBinaryName", defaults.BinaryName))
 }
