@@ -1,3 +1,5 @@
 images/*
 dist/*
 bin/*
+*.log
+*.sh
