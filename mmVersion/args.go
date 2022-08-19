@@ -6,6 +6,85 @@ import (
 )
 
 
+func (v *Version) SetArgs(a ...string) {
+	v.Args.Set(a...)
+	//var err error
+	//
+	//for range onlyOnce {
+	//	r.Args = a
+	//}
+	//
+	//return err
+}
+
+func (v *Version) AddArgs(a ...string) {
+	v.Args.Append(a...)
+	//var err error
+	//
+	//for range onlyOnce {
+	//	r.Args = append(r.Args, a...)
+	//}
+	//
+	//return err
+}
+
+func (v *Version) GetArgs() []string {
+	return v.Args.GetAll()
+}
+
+func (v *Version) GetArg(index int) string {
+	return v.Args.Get(index)
+}
+
+func (v *Version) GetArgRange(lower int, upper int) []string {
+	return v.Args.Range(lower, upper)
+}
+
+func (v *Version) SprintfArgRange(lower int, upper int) string {
+	return v.Args.SprintfRange(lower, upper)
+}
+
+func (v *Version) SprintfArgsFrom(lower int) string {
+	return v.Args.SprintfFrom(lower)
+}
+
+//goland:noinspection SpellCheckingInspection
+func (v *Version) GetNargs(begin int, size int) []string {
+	return v.Args.GetFromSize(begin, size)
+}
+
+//goland:noinspection SpellCheckingInspection
+func (v *Version) SprintfNargs(lower int, upper int) string {
+	return v.Args.SprintfFromSize(lower, upper)
+}
+
+func (v *Version) SetFullArgs(a ...string) {
+	v.FullArgs.Set(a...)
+	//var err error
+	//
+	//for range onlyOnce {
+	//	r.FullArgs = a
+	//}
+	//
+	//return err
+}
+
+func (v *Version) AddFullArgs(a ...string) {
+	v.FullArgs.Append(a...)
+	//var err error
+	//
+	//for range onlyOnce {
+	//	r.FullArgs = append(r.FullArgs, a...)
+	//}
+	//
+	//return err
+}
+
+func (v *Version) GetFullArgs() []string {
+	return v.FullArgs.GetAll()
+}
+
+
 type ExecArgs []string
 
 func (r *ExecArgs) ToString() string {

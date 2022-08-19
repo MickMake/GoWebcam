@@ -2,19 +2,14 @@ package mmVersion
 
 import (
 	"GoWebcam/Only"
-	"bytes"
 	"context"
 	"errors"
 	"fmt"
 	"github.com/rhysd/go-github-selfupdate/selfupdate"
 	"golang.org/x/oauth2"
-	"io"
 	"io/ioutil"
 	"net/http"
-	"os"
-	"os/exec"
 	"strings"
-	"syscall"
 )
 
 
@@ -38,7 +33,6 @@ func printVersionSummary(release *selfupdate.Release) string {
 
 	return ret
 }
-
 
 func printVersion(release *selfupdate.Release) string {
 	var ret string
@@ -67,7 +61,6 @@ func printVersion(release *selfupdate.Release) string {
 	return ret
 }
 
-
 func stripUrlPrefix(url ...string) string {
 	u := strings.Join(url, "/")
 	u = strings.ReplaceAll(u, "//", "/")
@@ -79,7 +72,6 @@ func stripUrlPrefix(url ...string) string {
 	u = strings.TrimSpace(u)
 	return u
 }
-
 
 func addUrlPrefix(url ...string) string {
 	u := strings.Join(url, "/")
@@ -100,7 +92,6 @@ func addUrlPrefix(url ...string) string {
 	return u
 }
 
-
 func dropVprefix(v string) string {
 	return strings.TrimPrefix(v, "v")
 }
@@ -115,26 +106,9 @@ func fixVersion(v string) string {
 	return fmt.Sprintf("%s.%s.%s", sa[0], sa[1], sa[2])
 }
 
-
 func addVprefix(v string) string {
 	return "v" + strings.TrimPrefix(v, "v")
 }
-
-
-func (v *Version) IsBootstrapBinary() bool {
-	var ok bool
-	for range Only.Once {
-		if v.CmdName != v.CmdFile {
-			break
-		}
-		if v.CmdName != BootstrapBinaryName {
-			break
-		}
-		ok = true
-	}
-	return ok
-}
-
 
 func CopyFile(runtimeBin string, targetBin string) error {
 	var err error
@@ -155,7 +129,6 @@ func CopyFile(runtimeBin string, targetBin string) error {
 
 	return err
 }
-
 
 func CompareBinary(runtimeBin string, newBin string) error {
 	var err error
@@ -194,47 +167,6 @@ func CompareBinary(runtimeBin string, newBin string) error {
 	return err
 }
 
-
-func (v *Version) AutoRun() State {
-	for range Only.Once {
-		if !v.AutoExec {
-			break
-		}
-
-		if v.IsBootstrapBinary() {
-			// Let's avoid an endless loop.
-			break
-		}
-
-		if len(v.FullArgs) > 0 {
-			if v.FullArgs[0] == CmdVersion {
-				// Let's avoid another endless loop.
-				break
-			}
-		}
-
-		fmt.Printf("Executing the real binary: '%s'\n", v.RuntimeBinary)
-		c := exec.Command(v.TargetBinary, v.FullArgs...)
-
-		var stdoutBuf, stderrBuf bytes.Buffer
-		c.Stdout = io.MultiWriter(os.Stdout, &stdoutBuf)
-		c.Stderr = io.MultiWriter(os.Stderr, &stderrBuf)
-		err := c.Run()
-		waitStatus := c.ProcessState.Sys().(syscall.WaitStatus)
-		waitStatus.ExitStatus()
-
-		if err != nil {
-			v.State.SetError(err.Error())
-			break
-		}
-
-		v.State.SetOk("")
-	}
-
-	return v.State
-}
-
-
 func newHTTPClient(ctx context.Context, token string) *http.Client {
 	if token == "" {
 		return http.DefaultClient
@@ -243,10 +175,17 @@ func newHTTPClient(ctx context.Context, token string) *http.Client {
 	return oauth2.NewClient(ctx, src)
 }
 
-
-// 		updater := selfupdate.DefaultUpdater()
-//		updater, err := selfupdate.NewUpdater()
-//		selfupdate.UncompressCommand()
-//		release, err := selfupdate.UpdateCommand()
-//		release, err := selfupdate.UpdateSelf(semver.MustParse(su.version.ToString()), su.useRepo)
-//		err := selfupdate.UpdateTo()
+func addFilters(Binary string, Os string, Arch string) []string {
+	var ret []string
+	ret = append(ret, fmt.Sprintf("(?i)%s_.*_%s_%s.*", Binary, Os, Arch))
+	ret = append(ret, fmt.Sprintf("(?i)%s_%s_%s.*", Binary, Os, Arch))
+	ret = append(ret, fmt.Sprintf("(?i)%s-.*_%s_%s.*", Binary, Os, Arch))
+	ret = append(ret, fmt.Sprintf("(?i)%s-%s_%s.*", Binary, Os, Arch))
+	if Arch == "amd64" {
+		// This is recursive - so be careful what you place in the "Arch" argument.
+		ret = append(ret, addFilters(Binary, Os, "x86_64.*")...)
+		ret = append(ret, addFilters(Binary, Os, "64.*")...)
+		ret = append(ret, addFilters(Binary, Os, "64bit.*")...)
+	}
+	return ret
+}

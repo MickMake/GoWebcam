@@ -88,7 +88,6 @@ func GetSemVer(v string) *VersionValue {
 	return &sver
 }
 
-
 func (v *VersionValue) String() string {
 	if v == nil {
 		return ""
@@ -186,7 +185,6 @@ func (v *VersionValue) IsLatest() bool {
 	return ok
 }
 
-
 func (v *StringValue) String() string {
 	return string(*v)
 }
@@ -201,7 +199,6 @@ func toBoolValue(b bool) *FlagValue {
 	return &v
 }
 
-
 func (v *StringValue) IsValid() bool {
 	var ok bool
 	for range Only.Once {
@@ -215,11 +212,9 @@ func (v *StringValue) IsValid() bool {
 	}
 	return ok
 }
-
 func (v *StringValue) IsNotValid() bool {
 	return !v.IsValid()
 }
-
 
 func (v *StringValue) IsNil() bool {
 	if v == nil {
@@ -231,7 +226,6 @@ func (v *StringValue) IsNotNil() bool {
 	return !v.IsNil()
 }
 
-
 func (v *StringValue) IsEmpty() bool {
 	if v == nil {
 		return true
@@ -241,7 +235,6 @@ func (v *StringValue) IsEmpty() bool {
 func (v *StringValue) IsNotEmpty() bool {
 	return !v.IsEmpty()
 }
-
 
 func (v *UrlValue) String() string {
 	return v.URL.String()
@@ -288,7 +281,6 @@ func (v *UrlValue) IsEmpty() bool {
 func (v *UrlValue) IsNotEmpty() bool {
 	return !v.IsEmpty()
 }
-
 
 func (v *UrlValue) Set(args ...string) error {
 	var err error
@@ -342,7 +334,6 @@ func (v *UrlValue) Set(args ...string) error {
 
 	return err
 }
-
 
 func (v *UrlValue) GetShortUrl() string {
 	return fmt.Sprintf("%s/%s", v.Owner, v.Name)
