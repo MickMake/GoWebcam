@@ -20,6 +20,7 @@ Defines webcam images to fetch.
 Requires:
 - `prefix` - The name of the webcam. Used as a prefix for directory and file names.
 - `url` - The webcam url to fetch.
+
 Optional:
 - `cron` - The schedule to fetch. Will default to the global `cron` definition.
 - `timeout` - Defines the web fetch timeout.
