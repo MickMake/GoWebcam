@@ -34,6 +34,12 @@ func (s *State) IsError() bool {
 	if s == nil {
 		return false
 	}
+	if s.error == nil {
+		return false
+	}
+	if s.error.Error() == "" {
+		return false
+	}
 	return true
 }
 func (s *State) IsNotError() bool {

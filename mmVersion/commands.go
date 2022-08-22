@@ -199,7 +199,7 @@ func (v *Version) VersionCheck() State {
 
 func (v *Version) VersionUpdate() State {
 	for range Only.Once {
-		v.State = v.IsUpdated(true)
+		v.State = v.IsUpdated(false)
 		if v.State.IsError() {
 			break
 		}

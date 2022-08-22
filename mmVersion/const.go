@@ -28,5 +28,5 @@ const (
 var defaultFalse = FlagValue(false)
 
 const DefaultVersionTemplate = `
-{{with .Name}}{{printf "%s " .}}{{end}}{{printf "version %s" .Version}}
+{{with .Name}}{{printf "%s " .}}{{end}} {{printf "version %s" .Version}}
 `
