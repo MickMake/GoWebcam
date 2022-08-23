@@ -7,7 +7,6 @@ import (
 	"GoWebcam/Unify/cmdDaemon"
 	"GoWebcam/Unify/cmdHelp"
 	"GoWebcam/Unify/cmdVersion"
-	"GoWebcam/mmWebcam"
 	"errors"
 	"github.com/spf13/cobra"
 	"time"
@@ -23,7 +22,7 @@ type CommandArgs struct {
 	Debug       bool
 	Daemonize	bool
 
-	// Web fetching
+	// Webcams fetching
 	WebHost     string
 	WebPort     string
 	WebUsername string
@@ -31,19 +30,25 @@ type CommandArgs struct {
 	WebTimeout  time.Duration
 	WebPrefix   string
 
-	Args []string
+	CmdWebcams *Webcams
+	CmdVersion *cmdVersion.Version
+	CmdDaemon  *cmdDaemon.Daemon
+	CmdCron    *cmdCron.Cron
+	CmdConfig  *cmdConfig.Config
+	CmdHelp    *cmdHelp.Help
 
 	Valid bool
 	Error error
 }
 
 var Cmd        CommandArgs
-var Webcams    *mmWebcam.Config
-var CmdVersion *cmdVersion.Version
-var CmdDaemon  *cmdDaemon.Daemon
-var CmdCron    *cmdCron.Cron
-var CmdConfig  *cmdConfig.Config
-var CmdHelp    *cmdHelp.Help
+// var Webcams    *mmWebcam.Config
+// var CmdWebcams *Webcams
+// var CmdVersion *cmdVersion.Version
+// var CmdDaemon  *cmdDaemon.Daemon
+// var CmdCron    *cmdCron.Cron
+// var CmdConfig  *cmdConfig.Config
+// var CmdHelp    *cmdHelp.Help
 
 
 func (ca *CommandArgs) IsValid() error {
@@ -57,9 +62,9 @@ func (ca *CommandArgs) IsValid() error {
 	return ca.Error
 }
 
-func (ca *CommandArgs) ProcessArgs(_ *cobra.Command, args []string) error {
+func (ca *CommandArgs) ProcessArgs(_ *cobra.Command, _ []string) error {
 	for range Only.Once {
-		ca.Args = args
+		// ca.Args = args
 
 		ca.Valid = true
 	}

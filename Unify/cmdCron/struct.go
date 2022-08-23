@@ -24,9 +24,6 @@ type Cron struct {
 	SelfCmd   *cobra.Command
 }
 
-// var CronVar Cron
-// var Crontab []Cron
-
 
 func New() *Cron {
 	var ret *Cron
@@ -35,6 +32,9 @@ func New() *Cron {
 		ret = &Cron {
 			Scheduler: gocron.NewScheduler(time.Local),
 			Error: nil,
+
+			cmd: nil,
+			SelfCmd: nil,
 		}
 	}
 

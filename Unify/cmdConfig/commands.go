@@ -19,8 +19,8 @@ func (c *Config) AttachCommands(cmd *cobra.Command) *cobra.Command {
 		// ******************************************************************************** //
 		c.SelfCmd = &cobra.Command{
 			Use:                   "config",
-			Short:                 "Create, update or show config file.",
-			Long:                  "Create, update or show config file.",
+			Short:                 "Cron - Create, update or show config file.",
+			Long:                  "Cron - Create, update or show config file.",
 			DisableFlagParsing:    false,
 			DisableFlagsInUseLine: false,
 			PreRunE:               c.InitArgs,
@@ -33,8 +33,8 @@ func (c *Config) AttachCommands(cmd *cobra.Command) *cobra.Command {
 		// ******************************************************************************** //
 		var cmdConfigWrite = &cobra.Command{
 			Use:                   "write",
-			Short:                 "Update config file.",
-			Long:                  "Update config file from CLI args.",
+			Short:                 "Cron - Update config file from CLI args.",
+			Long:                  "Cron - Update config file from CLI args.",
 			DisableFlagParsing:    false,
 			DisableFlagsInUseLine: false,
 			PreRunE:               c.InitArgs,
@@ -47,8 +47,8 @@ func (c *Config) AttachCommands(cmd *cobra.Command) *cobra.Command {
 		// ******************************************************************************** //
 		var cmdConfigRead = &cobra.Command{
 			Use:                   "read",
-			Short:                 "Read config file.",
-			Long:                  "Read config file.",
+			Short:                 "Cron - Read config file.",
+			Long:                  "Cron - Read config file.",
 			DisableFlagParsing:    false,
 			DisableFlagsInUseLine: false,
 			PreRunE:               c.InitArgs,
@@ -63,7 +63,7 @@ func (c *Config) AttachCommands(cmd *cobra.Command) *cobra.Command {
 }
 
 
-func (c *Config) InitArgs(cmd *cobra.Command, args []string) error {
+func (c *Config) InitArgs(_ *cobra.Command, _ []string) error {
 	var err error
 	for range Only.Once {
 		//
@@ -81,7 +81,7 @@ func (c *Config) CmdConfig(cmd *cobra.Command, args []string) {
 	}
 }
 
-func (c *Config) CmdWrite(cmd *cobra.Command, args []string) {
+func (c *Config) CmdWrite(_ *cobra.Command, args []string) {
 	for range Only.Once {
 		if len(args) == 1 {
 			c.File = args[0]

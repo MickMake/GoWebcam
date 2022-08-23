@@ -34,8 +34,12 @@ func New() *Config {
 			Dir: ".",
 			File: defaultConfigFile,
 			Error: nil,
+
 			// Flags: make(map[string]interface{}),
+
 			viper: viper.New(),
+			cmd: nil,
+			SelfCmd: nil,
 		}
 
 		ret.Dir, ret.Error = os.UserHomeDir()
@@ -94,7 +98,7 @@ func (c *Config) SetFile(fn string) {
 }
 
 // Init reads in config file and ENV variables if set.
-func (c *Config) Init(cmd *cobra.Command) error {
+func (c *Config) Init(_ *cobra.Command) error {
 	var err error
 
 	for range Only.Once {

@@ -32,7 +32,7 @@ func (c *Cron) AttachCommands(cmd *cobra.Command) *cobra.Command {
 			Args:                  cobra.MinimumNArgs(1),
 		}
 		cmd.AddCommand(c.SelfCmd)
-		c.SelfCmd.Example = cmdHelp.PrintExamples(c.SelfCmd, "run ./5 . . . . web get Basin https://charlottepass.com.au/charlottepass/webcam/lucylodge/current.jpg", "run 00 12 . . . web get Basin https://charlottepass.com.au/charlottepass/webcam/lucylodge/current.jpg")
+		c.SelfCmd.Example = cmdHelp.PrintExamples(c.SelfCmd, "./5 . . . . web get Basin https://charlottepass.com.au/charlottepass/webcam/lucylodge/current.jpg", "00 12 . . . web get Basin https://charlottepass.com.au/charlottepass/webcam/lucylodge/current.jpg")
 
 		// ******************************************************************************** //
 		var cmdCronRun = &cobra.Command{
@@ -103,7 +103,7 @@ func (c *Cron) AttachCommands(cmd *cobra.Command) *cobra.Command {
 	return c.SelfCmd
 }
 
-func (c *Cron) InitArgs(cmd *cobra.Command, args []string) error {
+func (c *Cron) InitArgs(_ *cobra.Command, _ []string) error {
 	var err error
 	for range Only.Once {
 		//

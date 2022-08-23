@@ -109,7 +109,3 @@ func BuildCmd(cmd *cobra.Command) string {
 	ret += cmd.Name() + " "
 	return ret
 }
-
-func ExtendedHelp() {
-	fmt.Println(strings.ReplaceAll(ExtendedHelpText, "DefaultBinaryName", defaults.BinaryName))
-}

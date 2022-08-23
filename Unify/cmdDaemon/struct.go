@@ -19,6 +19,9 @@ func New() *Daemon {
 	for range Only.Once {
 		ret = &Daemon{
 			Error: nil,
+
+			cmd: nil,
+			SelfCmd: nil,
 		}
 	}
 

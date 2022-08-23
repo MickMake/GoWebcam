@@ -28,12 +28,15 @@ func (h *Help) AttachCommands(cmd *cobra.Command) *cobra.Command {
 		}
 		cmd.AddCommand(h.SelfCmd)
 		h.SelfCmd.Example = PrintExamples(h.SelfCmd, "")
+
+		h.cmd.SetHelpTemplate(DefaultHelpTemplate)
+		h.cmd.SetUsageTemplate(DefaultUsageTemplate)
 	}
 
 	return h.SelfCmd
 }
 
-func (h *Help) InitArgs(cmd *cobra.Command, args []string) error {
+func (h *Help) InitArgs(_ *cobra.Command, _ []string) error {
 	var err error
 	for range Only.Once {
 		//
@@ -47,12 +50,12 @@ func (h *Help) CmHelpAll(cmd *cobra.Command, args []string) {
 			fmt.Println("Unknown sub-command.")
 		}
 
-		ExtendedHelp()
+		h.ExtendedHelp()
 
 		// cmd.SetUsageTemplate(DefaultFlagHelpTemplate)
 		cmd.SetUsageTemplate("")
 		_ = cmd.Help()
 
-		PrintFlags(cmd)	// @TODO - Find root command.
+		PrintFlags(h.cmd)
 	}
 }

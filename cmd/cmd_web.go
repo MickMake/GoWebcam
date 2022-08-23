@@ -14,86 +14,116 @@ import (
 )
 
 
-func AttachCmdWeb(cmd *cobra.Command) *cobra.Command {
-	// ******************************************************************************** //
-	var cmdWeb = &cobra.Command{
-		Use:                   "web",
-		Aliases:               []string{""},
-		Short:                 fmt.Sprintf("Connect to a HASSIO broker."),
-		Long:                  fmt.Sprintf("Connect to a HASSIO broker."),
-		DisableFlagParsing:    false,
-		DisableFlagsInUseLine: false,
-		PreRunE:               Cmd.WebArgs,
-		RunE:                  cmdWebFunc,
-		Args:                  cobra.MinimumNArgs(1),
-	}
-	cmd.AddCommand(cmdWeb)
-	cmdWeb.Example = cmdHelp.PrintExamples(cmdWeb, "run", "cron")
+type Webcams struct {
+	Config    *mmWebcam.Config
+	Error     error
 
-	// ******************************************************************************** //
-	var cmdWebGet = &cobra.Command{
-		Use:                   "get",
-		Aliases:               []string{""},
-		Short:                 fmt.Sprintf("One-off webcam fetch."),
-		Long:                  fmt.Sprintf("One-off webcam fetch."),
-		DisableFlagParsing:    false,
-		DisableFlagsInUseLine: false,
-		PreRunE:               Cmd.WebArgs,
-		RunE:                  cmdWebGetFunc,
-		Args:                  cobra.ExactArgs(2),
-	}
-	cmdWeb.AddCommand(cmdWebGet)
-	cmdWebGet.Example = cmdHelp.PrintExamples(cmdWebGet, "Basin https://charlottepass.com.au/charlottepass/webcam/lucylodge/current.jpg")
-
-	// ******************************************************************************** //
-	var cmdWebRun = &cobra.Command{
-		Use:                   "run",
-		Aliases:               []string{""},
-		Short:                 fmt.Sprintf("One-off webcam fetch from config."),
-		Long:                  fmt.Sprintf("One-off webcam fetch from config."),
-		DisableFlagParsing:    false,
-		DisableFlagsInUseLine: false,
-		PreRunE:               Cmd.WebArgs,
-		RunE:                  cmdWebRunFunc,
-		Args:                  cobra.RangeArgs(0, 1),
-	}
-	cmdWeb.AddCommand(cmdWebRun)
-	cmdWebRun.Example = cmdHelp.PrintExamples(cmdWebRun, "")
-
-	// ******************************************************************************** //
-	var cmdWebCron = &cobra.Command{
-		Use:                   "cron",
-		Aliases:               []string{""},
-		Short:                 fmt.Sprintf("Cron based webcam fetch from config."),
-		Long:                  fmt.Sprintf("Cron based webcam fetch from config."),
-		DisableFlagParsing:    false,
-		DisableFlagsInUseLine: false,
-		PreRunE:               Cmd.WebArgs,
-		RunE:                  cmdWebCronFunc,
-		Args:                  cobra.RangeArgs(0, 1),
-	}
-	cmdWeb.AddCommand(cmdWebCron)
-	cmdWebCron.Example = cmdHelp.PrintExamples(cmdWebCron, "", "all")
-
-	return cmdWeb
+	cmd       *cobra.Command
+	SelfCmd   *cobra.Command
 }
 
-func (ca *CommandArgs) WebArgs(cmd *cobra.Command, args []string) error {
+
+func NewWeb() *Webcams {
+	var ret *Webcams
+
 	for range Only.Once {
-		ca.Error = ca.ProcessArgs(cmd, args)
-		if ca.Error != nil {
-			break
+		ret = &Webcams{
+			Config: &mmWebcam.Config{},
+			Error: nil,
+
+			cmd: nil,
+			SelfCmd: nil,
 		}
 	}
 
-	return Cmd.Error
+	return ret
 }
 
-func cmdWebFunc(cmd *cobra.Command, _ []string) error {
+
+func (w *Webcams) AttachCmdWeb(cmd *cobra.Command) *cobra.Command {
+	for range Only.Once {
+		if cmd == nil {
+			break
+		}
+		w.cmd = cmd
+
+		// ******************************************************************************** //
+		w.SelfCmd = &cobra.Command{
+			Use:                   "web",
+			Aliases:               []string{""},
+			Short:                 fmt.Sprintf("Webcam fetcher."),
+			Long:                  fmt.Sprintf("Webcam fetcher."),
+			DisableFlagParsing:    false,
+			DisableFlagsInUseLine: false,
+			PreRunE:               w.InitArgs,
+			RunE:                  w.CmdWeb,
+			Args:                  cobra.MinimumNArgs(1),
+		}
+		cmd.AddCommand(w.SelfCmd)
+		w.SelfCmd.Example = cmdHelp.PrintExamples(w.SelfCmd, "run", "cron")
+
+		// ******************************************************************************** //
+		var cmdWebGet = &cobra.Command{
+			Use:                   "get",
+			Aliases:               []string{""},
+			Short:                 fmt.Sprintf("One-off webcam fetch."),
+			Long:                  fmt.Sprintf("One-off webcam fetch."),
+			DisableFlagParsing:    false,
+			DisableFlagsInUseLine: false,
+			PreRunE:               w.InitArgs,
+			RunE:                  w.CmdWebGet,
+			Args:                  cobra.ExactArgs(2),
+		}
+		w.SelfCmd.AddCommand(cmdWebGet)
+		cmdWebGet.Example = cmdHelp.PrintExamples(cmdWebGet, "Basin https://charlottepass.com.au/charlottepass/webcam/lucylodge/current.jpg")
+
+		// ******************************************************************************** //
+		var cmdWebRun = &cobra.Command{
+			Use:                   "run",
+			Aliases:               []string{""},
+			Short:                 fmt.Sprintf("One-off webcam fetch from config."),
+			Long:                  fmt.Sprintf("One-off webcam fetch from config."),
+			DisableFlagParsing:    false,
+			DisableFlagsInUseLine: false,
+			PreRunE:               w.InitArgs,
+			RunE:                  w.CmdWebRun,
+			Args:                  cobra.RangeArgs(0, 1),
+		}
+		w.SelfCmd.AddCommand(cmdWebRun)
+		cmdWebRun.Example = cmdHelp.PrintExamples(cmdWebRun, "")
+
+		// ******************************************************************************** //
+		var cmdWebCron = &cobra.Command{
+			Use:                   "cron",
+			Aliases:               []string{""},
+			Short:                 fmt.Sprintf("Cron based webcam fetch from config."),
+			Long:                  fmt.Sprintf("Cron based webcam fetch from config."),
+			DisableFlagParsing:    false,
+			DisableFlagsInUseLine: false,
+			PreRunE:               w.InitArgs,
+			RunE:                  w.CmdWebCron,
+			Args:                  cobra.RangeArgs(0, 1),
+		}
+		w.SelfCmd.AddCommand(cmdWebCron)
+		cmdWebCron.Example = cmdHelp.PrintExamples(cmdWebCron, "", "all")
+	}
+
+	return w.SelfCmd
+}
+
+func (w *Webcams) InitArgs(_ *cobra.Command, _ []string) error {
+	var err error
+	for range Only.Once {
+		//
+	}
+	return err
+}
+
+func (w *Webcams) CmdWeb(cmd *cobra.Command, _ []string) error {
 	return cmd.Help()
 }
 
-func cmdWebGetFunc(_ *cobra.Command, args []string) error {
+func (w *Webcams) CmdWebGet(_ *cobra.Command, args []string) error {
 	for range Only.Once {
 		prefix := Cmd.WebPrefix
 		if args[0] != "" {
@@ -124,15 +154,15 @@ func cmdWebGetFunc(_ *cobra.Command, args []string) error {
 	return Cmd.Error
 }
 
-func cmdWebRunFunc(_ *cobra.Command, _ []string) error {
+func (w *Webcams) CmdWebRun(_ *cobra.Command, _ []string) error {
 	for range Only.Once {
-		Webcams, Cmd.Error = mmWebcam.ReadConfig("config.json")
+		w.Config, Cmd.Error = mmWebcam.ReadConfig("config.json")
 		if Cmd.Error != nil {
 			break
 		}
 
 		cmdLog.Printf("One-off fetch of webcams from config...\n")
-		Cmd.Error = Webcams.RunAll()
+		Cmd.Error = w.Config.RunAll()
 		if Cmd.Error != nil {
 			break
 		}
@@ -141,9 +171,9 @@ func cmdWebRunFunc(_ *cobra.Command, _ []string) error {
 	return Cmd.Error
 }
 
-func cmdWebCronFunc(cmd *cobra.Command, args []string) error {
+func (w *Webcams) CmdWebCron(_ *cobra.Command, _ []string) error {
 	for range Only.Once {
-		Webcams, Cmd.Error = mmWebcam.ReadConfig("config.json")
+		w.Config, Cmd.Error = mmWebcam.ReadConfig("config.json")
 		if Cmd.Error != nil {
 			break
 		}
@@ -151,11 +181,11 @@ func cmdWebCronFunc(cmd *cobra.Command, args []string) error {
 		cmdLog.Printf("Cron based webcam fetch from config...\n")
 
 		crontab := make(map[string]*gocron.Job)
-		for index, webcam := range Webcams.Images {
+		for index, webcam := range w.Config.Images {
 			var job *gocron.Job
 			// job, Cmd.Error = CmdCron.Scheduler.CronWithSeconds(webcam.Cron).StartImmediately().Tag(webcam.Prefix).Do(Webcams.Images[index].GetImage)
 			// job, Cmd.Error = CmdCron.AddJob(webcam.Cron, "Webcam:" + webcam.Prefix, Webcams.Images[index].GetImage)
-			job, Cmd.Error = CmdCron.AddJob(webcam.Cron, webcam.Prefix, Webcams.Images[index].GetImage)
+			job, Cmd.Error = Cmd.CmdCron.AddJob(webcam.Cron, webcam.Prefix, w.Config.Images[index].GetImage)
 			if Cmd.Error != nil {
 				cmdLog.Printf("crontab error: %s\n", Cmd.Error)
 				break
@@ -163,25 +193,25 @@ func cmdWebCronFunc(cmd *cobra.Command, args []string) error {
 			crontab[webcam.Prefix] = job
 		}
 
-		if Webcams.Report.Cron != "" {
+		if w.Config.Report.Cron != "" {
 			// _, Cmd.Error = CmdCron.Scheduler.CronWithSeconds(Webcams.Report.Cron).StartImmediately().Tag("report").Do(CmdCron.PrintJobs)
-			_, Cmd.Error = CmdCron.AddJob(Webcams.Report.Cron, "Report", CmdCron.PrintJobs)
+			_, Cmd.Error = Cmd.CmdCron.AddJob(w.Config.Report.Cron, "Report", Cmd.CmdCron.PrintJobs)
 			if Cmd.Error != nil {
 				break
 			}
 		}
 
-		for index := range Webcams.Scripts {
+		for index := range w.Config.Scripts {
 			name := fmt.Sprintf("script-%d", index)
 			// _, Cmd.Error = CmdCron.Scheduler.CronWithSeconds(Webcams.Scripts[index].Cron).Tag(name).Do(RunScript, name)
 			// _, Cmd.Error = CmdCron.AddJob(Webcams.Scripts[index].Cron, "Script:" + name, RunScript, name)
-			_, Cmd.Error = CmdCron.AddJob(Webcams.Scripts[index].Cron, name, RunScript, name)
+			_, Cmd.Error = Cmd.CmdCron.AddJob(w.Config.Scripts[index].Cron, name, w.RunScript, name)
 			if Cmd.Error != nil {
 				break
 			}
 		}
 
-		Cmd.Error = CmdCron.StartBlocking()
+		Cmd.Error = Cmd.CmdCron.StartBlocking()
 		if Cmd.Error != nil {
 			break
 		}
@@ -212,12 +242,12 @@ func cmdWebCronFunc(cmd *cobra.Command, args []string) error {
 	return Cmd.Error
 }
 
-func RunScript(name string) error {
+func (w *Webcams) RunScript(name string) error {
 	var err error
 
 	for range Only.Once {
 		id := -1
-		for _, key := range CmdCron.Jobs() {
+		for _, key := range Cmd.CmdCron.Jobs() {
 			if strings.Join(key.Tags(), " ") != name {
 				continue
 			}
@@ -235,11 +265,11 @@ func RunScript(name string) error {
 			break
 		}
 
-		if id >= len(Webcams.Scripts) {
+		if id >= len(w.Config.Scripts) {
 			break
 		}
 
-		job := Webcams.Scripts[id]
+		job := w.Config.Scripts[id]
 
 		err = cmdCron.Exec(job.Cmd, job.Args...)
 	}
