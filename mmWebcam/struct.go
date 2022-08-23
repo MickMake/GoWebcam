@@ -38,7 +38,8 @@ type Webcam struct {
 	logfile     cmdLog.Log
 }
 
-func New(req Webcam) Webcam {
+
+func NewWebcam(req Webcam) Webcam {
 	var ret Webcam
 
 	for range Only.Once {
@@ -63,6 +64,7 @@ func New(req Webcam) Webcam {
 
 	return ret
 }
+
 
 func (m *Webcam) IsFirstRun() bool {
 	return m.firstRun

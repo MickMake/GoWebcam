@@ -146,7 +146,8 @@ func (v *Version) CmdVersionShow() State {
 func (v *Version) CmdVersionInfo(args ...string) State {
 	for range Only.Once {
 		if len(args) == 0 {
-			args = []string{CmdVersionLatest}
+			fmt.Println("Showing details on current version.")
+			args = []string{v.ExecVersion}
 		}
 
 		for _, vs := range args {

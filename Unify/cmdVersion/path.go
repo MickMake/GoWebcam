@@ -2,10 +2,9 @@ package cmdVersion
 
 import (
 	"GoWebcam/Only"
+	"GoWebcam/Unify/cmdLog"
 	"bufio"
-	"bytes"
 	"errors"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
@@ -14,7 +13,6 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-	"syscall"
 )
 
 
@@ -66,20 +64,52 @@ func (v *Version) AutoRun() State {
 			}
 		}
 
-		fmt.Printf("Executing the real binary: '%s'\n", v.RuntimeBinary)
-		c := exec.Command(v.TargetBinary, v.FullArgs...)
+		// @TODO - This is broken!
+		cmd := exec.Command(v.TargetBinary, []string{"version", "info"}...)
 
-		var stdoutBuf, stderrBuf bytes.Buffer
-		c.Stdout = io.MultiWriter(os.Stdout, &stdoutBuf)
-		c.Stderr = io.MultiWriter(os.Stderr, &stderrBuf)
-		err := c.Run()
-		waitStatus := c.ProcessState.Sys().(syscall.WaitStatus)
-		waitStatus.ExitStatus()
-
+		var stdout io.ReadCloser
+		var err error
+		stdout, err = cmd.StdoutPipe()
 		if err != nil {
+			break
+		}
+
+		err = cmd.Start()
+		if err != nil {
+			break
+		}
+
+		in := bufio.NewScanner(stdout)
+
+		for in.Scan() {
+			cmdLog.Printf(in.Text()) // write each line to your log, or anything you need
+		}
+
+		err = in.Err()
+		if err != nil {
+			cmdLog.Printf("error: %s", err)
 			v.State.SetError(err.Error())
 			break
 		}
+
+		// @TODO - This is broken!
+		// fmt.Printf("Executing the real binary: '%s'\n", v.RuntimeBinary)
+		// // c := exec.Command(v.TargetBinary, v.FullArgs...)
+		// c := exec.Command(v.TargetBinary, []string{"version"}...)
+		//
+		// var stdoutBuf, stderrBuf bytes.Buffer
+		// c.Stdout = io.MultiWriter(os.Stdout, &stdoutBuf)
+		// c.Stderr = io.MultiWriter(os.Stderr, &stderrBuf)
+		// err := c.Run()
+		// waitStatus := c.ProcessState.Sys().(syscall.WaitStatus)
+		// waitStatus.ExitStatus()
+		//
+		// if err != nil {
+		// 	fmt.Printf("stdoutBuf: %s\n", stdoutBuf.String())
+		// 	fmt.Printf("stderrBuf: %s\n", stderrBuf.String())
+		// 	v.State.SetError(err.Error())
+		// 	break
+		// }
 
 		v.State.SetOk("")
 	}

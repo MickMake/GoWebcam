@@ -75,7 +75,7 @@ func (c *Config) Read(fp string) (*Config, error) {
 		}
 
 		for i := range c.Images {
-			c.Images[i] = New(c.Images[i])
+			c.Images[i] = NewWebcam(c.Images[i])
 
 			if c.Images[i].Dir == "" {
 				c.Images[i].Dir = c.Dir
@@ -190,11 +190,11 @@ func ReadConfig(fp string) (*Config, error) {
 	return c.Read(fp)
 }
 
-func NewWebcam(req Webcam) *Webcam {
-	var ret Webcam
-
-	for range Only.Once {
-	}
-
-	return &ret
-}
+// func NewWebcam(req Webcam) *Webcam {
+// 	var ret Webcam
+//
+// 	for range Only.Once {
+// 	}
+//
+// 	return &ret
+// }

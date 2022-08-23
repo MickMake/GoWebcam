@@ -159,7 +159,7 @@ func (v *Version) GetSemVer() *VersionValue {
 
 func (v *Version) PrintNameVersion() {
 	fmt.Printf("%s ", v.ExecName)
-	fmt.Printf("v%s", v.CmdVersion)
+	fmt.Printf("v%s", v.ExecVersion)
 }
 
 func (v *Version) TimeStampString() string {
