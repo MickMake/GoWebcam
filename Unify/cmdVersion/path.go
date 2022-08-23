@@ -159,6 +159,11 @@ func (v *Version) IsRunningAsLink() bool {
 
 type Path string
 
+func NewPath(path ...string) *Path {
+	var ret Path
+	ret.Set(path...)
+	return &ret
+}
 
 func (p *Path) DirExists() bool {
 	var ok bool
@@ -213,10 +218,10 @@ func (p *Path) Chmod(mode os.FileMode) bool {
 	return ok
 }
 
-func (p *Path) Set(elem ...string) {
+func (p *Path) Set(path ...string) {
 
 	for range Only.Once {
-		dir := filepath.Join(elem...)
+		dir := filepath.Join(path...)
 		if strings.HasPrefix(dir, "~/") {
 			u, err := user.Current()
 			if err != nil {

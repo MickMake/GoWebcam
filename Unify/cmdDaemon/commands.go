@@ -3,12 +3,12 @@ package cmdDaemon
 import (
 	"GoWebcam/Only"
 	"GoWebcam/Unify/cmdHelp"
+	"GoWebcam/Unify/cmdLog"
+	"GoWebcam/Unify/cmdVersion"
 	"GoWebcam/defaults"
-	"errors"
 	"fmt"
 	"github.com/sevlyar/go-daemon"
 	"github.com/spf13/cobra"
-	"log"
 	"os"
 	"strings"
 	"syscall"
@@ -31,10 +31,8 @@ func (d *Daemon) AttachCommands(cmd *cobra.Command) *cobra.Command {
 			DisableFlagParsing:    false,
 			DisableFlagsInUseLine: false,
 			PreRunE:               d.InitArgs,
-			Run: func(cmd *cobra.Command, args []string) {
-				d.Error = d.CmdDaemon(cmd, args)
-			},
-			Args: cobra.MinimumNArgs(1),
+			RunE:				   d.CmdDaemon,
+			Args:                  cobra.MinimumNArgs(1),
 		}
 		cmd.AddCommand(d.SelfCmd)
 		d.SelfCmd.Example = cmdHelp.PrintExamples(d.SelfCmd, "exec web run", "kill")
@@ -48,8 +46,8 @@ func (d *Daemon) AttachCommands(cmd *cobra.Command) *cobra.Command {
 			DisableFlagParsing:    false,
 			DisableFlagsInUseLine: false,
 			PreRunE:               d.InitArgs,
-			Run: func(cmd *cobra.Command, args []string) {
-				d.Error = d.CmdDaemonExec(DummyFunc, nil, args)
+			RunE: func(cmd *cobra.Command, args []string) error {
+				return d.CmdDaemonExec(DummyFunc, nil, args)
 			},
 			Args: cobra.MinimumNArgs(1),
 		}
@@ -65,8 +63,9 @@ func (d *Daemon) AttachCommands(cmd *cobra.Command) *cobra.Command {
 			DisableFlagParsing:    false,
 			DisableFlagsInUseLine: false,
 			PreRunE:               d.InitArgs,
-			Run: func(cmd *cobra.Command, args []string) {
-				d.Error = d.CmdDaemonKill()
+			RunE: func(cmd *cobra.Command, args []string) error {
+				d.Error = cmdLog.LogFileSet("")
+				return d.CmdDaemonKill()
 			},
 			// Args:                  cobra.MinimumNArgs(1),
 		}
@@ -82,8 +81,9 @@ func (d *Daemon) AttachCommands(cmd *cobra.Command) *cobra.Command {
 			DisableFlagParsing:    false,
 			DisableFlagsInUseLine: false,
 			PreRunE:               d.InitArgs,
-			Run: func(cmd *cobra.Command, args []string) {
-				d.Error = d.CmdDaemonReload()
+			RunE: func(cmd *cobra.Command, args []string) error {
+				d.Error = cmdLog.LogFileSet("")
+				return d.CmdDaemonReload()
 			},
 			// Args:                  cobra.MinimumNArgs(1),
 		}
@@ -99,8 +99,9 @@ func (d *Daemon) AttachCommands(cmd *cobra.Command) *cobra.Command {
 			DisableFlagParsing:    false,
 			DisableFlagsInUseLine: false,
 			PreRunE:               d.InitArgs,
-			Run: func(cmd *cobra.Command, args []string) {
-				d.Error = d.CmdDaemonList()
+			RunE: func(cmd *cobra.Command, args []string) error {
+				d.Error = cmdLog.LogFileSet("")
+				return d.CmdDaemonList()
 			},
 			// Args:                  cobra.MinimumNArgs(1),
 		}
@@ -112,10 +113,22 @@ func (d *Daemon) AttachCommands(cmd *cobra.Command) *cobra.Command {
 }
 
 
-func (d *Daemon) InitArgs(cmd *cobra.Command, args []string) error {
+func (d *Daemon) InitArgs(_ *cobra.Command, _ []string) error {
 	var err error
 	for range Only.Once {
-		//
+		// @TODO - Sort out this Daemon mess.
+		d.cntxt = &daemon.Context {
+			PidFileName: pidFile,
+			PidFilePerm: 0644,
+			LogFileName: d.cmd.Name() + ".log",
+			LogFilePerm: 0640,
+			WorkDir:     "./",
+			Umask:       027,
+			Args:        []string{ fmt.Sprintf("[%s]", defaults.BinaryName) },
+			// 	Chroot:      "",
+			// 	Env:         nil,
+			// 	Credential:  nil,
+		}
 	}
 	return err
 }
@@ -130,19 +143,19 @@ func (d *Daemon) CmdDaemon(cmd *cobra.Command, _ []string) error {
 
 func (d *Daemon) CmdDaemonExec(fn DaemonFunc, _ *cobra.Command, args []string) error {
 	for range Only.Once {
+		d.Error = cmdLog.LogFileSet("")
+
+		var child *os.Process
+		child, _ = d.cntxt.Search()
+		if child != nil {
+			fmt.Println("Daemon already running")
+			break
+		}
+
 		nargs := []string{ fmt.Sprintf("[%s]", defaults.BinaryName) }
 		nargs = append(nargs, args...)
+		d.cntxt.Args = nargs
 
-		// @TODO - Sort out this Daemon mess.
-		cntxt := &daemon.Context {
-			PidFileName: pidFile,
-			PidFilePerm: 0644,
-			LogFileName: defaults.BinaryName + "Daemon.log",
-			LogFilePerm: 0640,
-			WorkDir:     "./",
-			Umask:       027,
-			Args:        nargs,
-		}
 		daemon.SetSigHandler(termHandler, syscall.SIGQUIT)
 		daemon.SetSigHandler(termHandler, syscall.SIGTERM)
 		daemon.SetSigHandler(reloadHandler, syscall.SIGHUP)
@@ -150,32 +163,31 @@ func (d *Daemon) CmdDaemonExec(fn DaemonFunc, _ *cobra.Command, args []string) e
 		// go worker()
 
 		fmt.Printf("Starting daemon: %s\n", strings.Join(nargs, " "))
-		var child *os.Process
-		child, d.Error = cntxt.Reborn()
+		child, d.Error = d.cntxt.Reborn()
 		if d.Error != nil {
 			// log.Printf("Error: %s\n", err)
-			log.Println("Daemon already running.")
+			fmt.Println("Daemon already running.")
 
-			pid := ReadPid()
+			pid := d.ReadPid()
 			if pid != -1 {
-				log.Printf("PID: %d\n", pid)
+				fmt.Printf("PID: %d\n", pid)
 			}
 			break
 		}
 
 		if child != nil {
 			fmt.Printf("Daemon started. PID: %d\n", child.Pid)
-			d.Error = WritePid(child.Pid)
+			d.Error = d.WritePid(child.Pid)
 			if d.Error != nil {
 				break
 			}
 			break
 		}
 		//goland:noinspection GoUnhandledErrorResult,GoDeferInLoop
-		defer cntxt.Release()
+		defer d.cntxt.Release()
 
 		// @TODO - Never seems to get to here!
-		log.Println("Daemon started.")
+		fmt.Println("Daemon started.")
 		// Cmd.Error = fn(cmd, args)
 	}
 
@@ -184,28 +196,54 @@ func (d *Daemon) CmdDaemonExec(fn DaemonFunc, _ *cobra.Command, args []string) e
 
 func (d *Daemon) CmdDaemonKill() error {
 	for range Only.Once {
-		pid := ReadPid()
-		if pid == -1 {
-			d.Error = errors.New("PID file empty or no PID file")
+		// if d.cntxt == nil {
+		// 	d.Error = errors.New("daemon PID empty")
+		// 	break
+		// }
+		//
+		// if d.cntxt.PidFileName == "" {
+		// 	d.Error = errors.New("daemon PID filename empty")
+		// 	break
+		// }
+		//
+		// pid := d.ReadPid()
+		// if pid == -1 {
+		// 	d.Error = errors.New("PID file empty or no PID file")
+		// 	break
+		// }
+		//
+		// fmt.Printf("Killing daemon. PID: %d\n", pid)
+		// // Cmd.Error = syscall.Kill(pid, syscall.SIGTERM)
+		// var child *os.Process
+		// child, d.Error = os.FindProcess(pid)
+		// if d.Error != nil {
+		// 	break
+		// }
+
+		var child *os.Process
+		child, d.Error = d.cntxt.Search()
+		if d.Error != nil {
 			break
 		}
+		if child == nil {
+			fmt.Println("Daemon not running")
+			break
+		}
+		fmt.Printf("Killing daemon. PID: %d\n", child.Pid)
 
-		fmt.Printf("Killing daemon. PID: %d\n", pid)
-		// Cmd.Error = syscall.Kill(pid, syscall.SIGTERM)
-		var p *os.Process
-		p, d.Error = os.FindProcess(pid)
+		d.Error = child.Signal(syscall.SIGTERM)
 		if d.Error != nil {
 			break
 		}
 
-		d.Error = p.Signal(syscall.SIGTERM)
-		if d.Error != nil {
-			break
-		}
+		d.Error = d.cntxt.Release()
 
-		d.Error = os.Remove(pidFile)
-		if d.Error != nil {
-			break
+		if cmdVersion.NewPath(d.cntxt.PidFileName).FileExists() {
+			// @TODO - Workaround for Mac OSX.
+			d.Error = os.Remove(d.cntxt.PidFileName)
+			if d.Error != nil {
+				break
+			}
 		}
 	}
 
@@ -214,21 +252,32 @@ func (d *Daemon) CmdDaemonKill() error {
 
 func (d *Daemon) CmdDaemonReload() error {
 	for range Only.Once {
-		pid := ReadPid()
-		if pid == -1 {
-			d.Error = errors.New("PID file empty or no PID file")
-			break
-		}
+		// pid := d.ReadPid()
+		// if pid == -1 {
+		// 	d.Error = errors.New("PID file empty or no PID file")
+		// 	break
+		// }
+		//
+		// fmt.Printf("Reloading daemon. PID: %d\n", pid)
+		// // Cmd.Error = syscall.Kill(pid, syscall.SIGHUP)
+		// var child *os.Process
+		// child, d.Error = os.FindProcess(pid)
+		// if d.Error != nil {
+		// 	break
+		// }
 
-		fmt.Printf("Reloading daemon. PID: %d\n", pid)
-		// Cmd.Error = syscall.Kill(pid, syscall.SIGHUP)
-		var p *os.Process
-		p, d.Error = os.FindProcess(pid)
+		var child *os.Process
+		child, d.Error = d.cntxt.Search()
 		if d.Error != nil {
 			break
 		}
+		if child == nil {
+			fmt.Println("Daemon not running")
+			break
+		}
+		fmt.Printf("Reloading daemon. PID: %d\n", child.Pid)
 
-		d.Error = p.Signal(syscall.SIGTERM)
+		d.Error = child.Signal(syscall.SIGHUP)
 		if d.Error != nil {
 			break
 		}
@@ -239,57 +288,47 @@ func (d *Daemon) CmdDaemonReload() error {
 
 func (d *Daemon) CmdDaemonList() error {
 	for range Only.Once {
-		// @TODO - Sort out this Daemon mess.
-		cntxt := &daemon.Context {
-			PidFileName: pidFile,
-			PidFilePerm: 0644,
-			LogFileName: defaults.BinaryName + "Daemon.log",
-			LogFilePerm: 0640,
-			WorkDir:     "./",
-			Umask:       027,
-			Args:        []string{ fmt.Sprintf("[%s]", defaults.BinaryName) },
-		}
 
 		var child *os.Process
-		child, d.Error = cntxt.Search()
+		child, d.Error = d.cntxt.Search()
 		if d.Error != nil {
 			break
 		}
 
-		pid := ReadPid()
+		pid := d.ReadPid()
 		switch {
-		// If no discovered PID and no PID file.
-		case (child == nil) && (pid == -1):
-			fmt.Println("No daemon running.")
+			// If no discovered PID and no PID file.
+			case (child == nil) && (pid == -1):
+				fmt.Println("No daemon running.")
 
-		// If no discovered PID and a PID file.
-		case (child == nil) && (pid != -1):
-			fmt.Println("Removing stale PID file.")
-			d.Error = os.Remove(pidFile)
-			if d.Error != nil {
-				break
-			}
+			// If no discovered PID and a PID file.
+			case (child == nil) && (pid != -1):
+				fmt.Println("Removing stale PID file.")
+				d.Error = os.Remove(d.cntxt.PidFileName)
+				if d.Error != nil {
+					break
+				}
 
-		// If discovered PID and no PID file.
-		case (child != nil) && (pid == -1):
-			fmt.Printf("Daemon running. PID: %d\n", child.Pid)
-			fmt.Println("Creating PID file.")
-			d.Error = WritePid(child.Pid)
-			if d.Error != nil {
-				break
-			}
+			// If discovered PID and no PID file.
+			case (child != nil) && (pid == -1):
+				fmt.Printf("Daemon running. PID: %d\n", child.Pid)
+				fmt.Println("Creating PID file.")
+				d.Error = d.WritePid(child.Pid)
+				if d.Error != nil {
+					break
+				}
 
-		// If discovered PID and a PID file.
-		case (child != nil) && (pid != -1):
-			fmt.Printf("Daemon running. PID: %d\n", child.Pid)
-			if child.Pid == pid {
-				break
-			}
-			fmt.Printf("Creating PID file. (Mismatch: %d != %d)\n", child.Pid, pid)
-			d.Error = WritePid(child.Pid)
-			if d.Error != nil {
-				break
-			}
+			// If discovered PID and a PID file.
+			case (child != nil) && (pid != -1):
+				fmt.Printf("Daemon running. PID: %d\n", child.Pid)
+				if child.Pid == pid {
+					break
+				}
+				fmt.Printf("Creating PID file. (Mismatch: %d != %d)\n", child.Pid, pid)
+				d.Error = d.WritePid(child.Pid)
+				if d.Error != nil {
+					break
+				}
 		}
 	}
 
@@ -299,7 +338,7 @@ func (d *Daemon) CmdDaemonList() error {
 
 type DaemonFunc func(cmd *cobra.Command, args []string) error
 
-func DummyFunc(cmd *cobra.Command, args []string) error {
+func DummyFunc(_ *cobra.Command, _ []string) error {
 	var err error
 	for range Only.Once {
 		//

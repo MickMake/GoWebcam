@@ -28,7 +28,7 @@ func (c *Cron) AttachCommands(cmd *cobra.Command) *cobra.Command {
 			DisableFlagParsing:    false,
 			DisableFlagsInUseLine: false,
 			PreRunE:               c.InitArgs,
-			Run:                   c.CmdCron,
+			RunE:                  c.CmdCron,
 			Args:                  cobra.MinimumNArgs(1),
 		}
 		cmd.AddCommand(c.SelfCmd)
@@ -43,7 +43,7 @@ func (c *Cron) AttachCommands(cmd *cobra.Command) *cobra.Command {
 			DisableFlagParsing:    false,
 			DisableFlagsInUseLine: false,
 			PreRunE:               c.InitArgs,
-			Run:                   c.CmdCronRun,
+			RunE:                  c.CmdCronRun,
 			Args:                  cobra.MinimumNArgs(6),
 		}
 		c.SelfCmd.AddCommand(cmdCronRun)
@@ -63,7 +63,7 @@ func (c *Cron) AttachCommands(cmd *cobra.Command) *cobra.Command {
 			DisableFlagParsing:    false,
 			DisableFlagsInUseLine: false,
 			PreRunE:               c.InitArgs,
-			Run:                   c.CmdCronAdd,
+			RunE:                  c.CmdCronAdd,
 			Args:                  cobra.MinimumNArgs(1),
 		}
 		c.SelfCmd.AddCommand(cmdCronAdd)
@@ -78,7 +78,7 @@ func (c *Cron) AttachCommands(cmd *cobra.Command) *cobra.Command {
 			DisableFlagParsing:    false,
 			DisableFlagsInUseLine: false,
 			PreRunE:               c.InitArgs,
-			Run:                   c.CmdCronRemove,
+			RunE:                  c.CmdCronRemove,
 			Args:                  cobra.MinimumNArgs(1),
 		}
 		c.SelfCmd.AddCommand(cmdCronRemove)
@@ -93,7 +93,7 @@ func (c *Cron) AttachCommands(cmd *cobra.Command) *cobra.Command {
 			DisableFlagParsing:    false,
 			DisableFlagsInUseLine: false,
 			PreRunE:               c.InitArgs,
-			Run:                   c.CmdCronList,
+			RunE:                  c.CmdCronList,
 			Args:                  cobra.MinimumNArgs(1),
 		}
 		c.SelfCmd.AddCommand(cmdCronList)
@@ -111,16 +111,18 @@ func (c *Cron) InitArgs(_ *cobra.Command, _ []string) error {
 	return err
 }
 
-func (c *Cron) CmdCron(cmd *cobra.Command, args []string) {
+func (c *Cron) CmdCron(cmd *cobra.Command, args []string) error {
 	for range Only.Once {
 		if len(args) == 0 {
 			c.Error = cmd.Help()
 			break
 		}
 	}
+
+	return c.Error
 }
 
-func (c *Cron) CmdCronRun(_ *cobra.Command, args []string) {
+func (c *Cron) CmdCronRun(_ *cobra.Command, args []string) error {
 	for range Only.Once {
 		// */1 * * * * /dir/command args args
 		cronString := strings.Join(args[0:5], " ")
@@ -143,9 +145,11 @@ func (c *Cron) CmdCronRun(_ *cobra.Command, args []string) {
 			break
 		}
 	}
+
+	return c.Error
 }
 
-func (c *Cron) CmdCronAdd(_ *cobra.Command, _ []string) {
+func (c *Cron) CmdCronAdd(_ *cobra.Command, _ []string) error {
 	for range Only.Once {
 		fmt.Println("Not yet implemented.")
 
@@ -167,9 +171,11 @@ func (c *Cron) CmdCronAdd(_ *cobra.Command, _ []string) {
 		// 	break
 		// }
 	}
+
+	return c.Error
 }
 
-func (c *Cron) CmdCronRemove(_ *cobra.Command, _ []string) {
+func (c *Cron) CmdCronRemove(_ *cobra.Command, _ []string) error {
 	for range Only.Once {
 		fmt.Println("Not yet implemented.")
 
@@ -191,9 +197,11 @@ func (c *Cron) CmdCronRemove(_ *cobra.Command, _ []string) {
 		// 	break
 		// }
 	}
+
+	return c.Error
 }
 
-func (c *Cron) CmdCronList(_ *cobra.Command, _ []string) {
+func (c *Cron) CmdCronList(_ *cobra.Command, _ []string) error {
 	for range Only.Once {
 		fmt.Println("Not yet implemented.")
 
@@ -215,6 +223,8 @@ func (c *Cron) CmdCronList(_ *cobra.Command, _ []string) {
 		// 	break
 		// }
 	}
+
+	return c.Error
 }
 
 func (c *Cron) ReExecute() error {

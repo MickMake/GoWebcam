@@ -2,7 +2,7 @@ package cmdDaemon
 
 import (
 	"GoWebcam/Only"
-	"GoWebcam/mmWebcam"
+	"GoWebcam/Unify/cmdVersion"
 	"fmt"
 	"github.com/sevlyar/go-daemon"
 	"log"
@@ -14,24 +14,35 @@ import (
 )
 
 
-func ReadPid() int {
-	var ret int
+func (d *Daemon) ReadPid() int {
+	ret := -1
 
 	for range Only.Once {
-		if !mmWebcam.FileExists(pidFile) {
+		if d.cntxt == nil {
 			break
 		}
 
-		os.Stat(pidFile)
+		if d.cntxt.PidFileName == "" {
+			break
+		}
+
+		if !cmdVersion.NewPath(d.cntxt.PidFileName).FileExists() {
+			// if !mmWebcam.FileExists(pidFile) {
+			ret = -1
+			break
+		}
+
 		// Open PID file
-		pid, err := os.ReadFile(pidFile)
-		if err != nil {
+		var pid []byte
+		pid, d.Error = os.ReadFile(d.cntxt.PidFileName)
+		if d.Error != nil {
+			ret = -1
 			break
 		}
 
 		ps := strings.TrimSpace(string(pid))
-		ret, err = strconv.Atoi(ps)
-		if err != nil {
+		ret, d.Error = strconv.Atoi(ps)
+		if d.Error != nil {
 			ret = -1
 			break
 		}
@@ -40,26 +51,24 @@ func ReadPid() int {
 	return ret
 }
 
-func WritePid(pid int) error {
-	var err error
-
+func (d *Daemon) WritePid(pid int) error {
 	for range Only.Once {
 		// Open a file for writing
 		var file *os.File
-		file, err = os.Create(pidFile)
-		if err != nil {
+		file, d.Error = os.Create(d.cntxt.PidFileName)
+		if d.Error != nil {
 			break
 		}
 		//goland:noinspection GoUnhandledErrorResult,GoDeferInLoop
 		defer file.Close()
 
-		_, err = file.Write([]byte(fmt.Sprintf("%d", pid)))
-		if err != nil {
+		_, d.Error = file.Write([]byte(fmt.Sprintf("%d", pid)))
+		if d.Error != nil {
 			break
 		}
 	}
 
-	return err
+	return d.Error
 }
 
 //goland:noinspection GoUnusedExportedFunction
@@ -74,9 +83,9 @@ LOOP:
 	for {
 		time.Sleep(time.Second) // this is work to be done by worker.
 		select {
-		case <-stop:
-			break LOOP
-		default:
+			case <-stop:
+				break LOOP
+			default:
 		}
 	}
 	done <- struct{}{}

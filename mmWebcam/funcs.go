@@ -9,7 +9,6 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"time"
 )
 
 
@@ -70,20 +69,20 @@ func Md5HashFile(filename string) string {
 	return ret
 }
 
-func LogSprintf(format string, args ...interface{}) string {
-	// format = timeStamp() + format
-	return fmt.Sprintf(format, args...)
-}
-
-func LogSprintfDate(format string, args ...interface{}) string {
-	ret := fmt.Sprintf("%s ", TimeNow())
-	ret += fmt.Sprintf(format, args...)
-	return ret
-}
-
-func TimeNow() string {
-	return time.Now().Format("2006-01-02 15:04:05")
-}
+// func LogSprintf(format string, args ...interface{}) string {
+// 	// format = timeStamp() + format
+// 	return fmt.Sprintf(format, args...)
+// }
+//
+// func LogSprintfDate(format string, args ...interface{}) string {
+// 	ret := fmt.Sprintf("%s ", TimeNow())
+// 	ret += fmt.Sprintf(format, args...)
+// 	return ret
+// }
+//
+// func TimeNow() string {
+// 	return time.Now().Format("2006-01-02 15:04:05")
+// }
 
 func DirExists(fn string) bool {
 	var yes bool

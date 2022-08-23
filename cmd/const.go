@@ -35,13 +35,19 @@ This tool is a basic webcam image puller. It can:
 
 Use case example:
 # Simple cron pulling an image every 5 minutes.
-	% DefaultBinaryName cron run . ./5 . . . . web get Basin https://charlottepass.com.au/charlottepass/webcam/lucylodge/current.jpg
+	% DefaultBinaryName cron run  . ./5 . . . .  web get Basin https://charlottepass.com.au/charlottepass/webcam/lucylodge/current.jpg
+
+# Once-off run of all webcams defined in config.json file.
+	% DefaultBinaryName web run
 
 # Pull webcam images as defined in config.json file, via cron.
 	% DefaultBinaryName web cron
 
-# Once-off run of all webcams defined in config.json file.
-	% DefaultBinaryName web run
+# Same as above, but run as a daemon.
+	% DefaultBinaryName daemon exec  web cron
+
+# List currently scheduled jobs.
+	% DefaultBinaryName daemon list
 
 # Config file.
 	Show current config.

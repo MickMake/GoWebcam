@@ -2,6 +2,7 @@ package mmWebcam
 
 import (
 	"GoWebcam/Only"
+	"GoWebcam/Unify/cmdLog"
 	"errors"
 	"fmt"
 	"io"
@@ -34,7 +35,7 @@ type Webcam struct {
 	url         *url.URL
 	firstRun    bool
 	err         error
-	logfile     *os.File
+	logfile     cmdLog.Log
 }
 
 func New(req Webcam) Webcam {
@@ -354,47 +355,17 @@ func (m *Webcam) GetDir() string {
 }
 
 func (m *Webcam) LogOpen() error {
-	for range Only.Once {
-		fp := m.GetDir()
-		fp = filepath.Join(fp, m.Prefix + ".log")
-
-		m.logfile, m.err = os.OpenFile(fp, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-		if m.err != nil {
-			break
-		}
-	}
-
-	return m.err
+	return m.logfile.Open(m.GetDir(), m.Prefix + ".log")
 }
 
 func (m *Webcam) LogPrintfDate(format string, args ...interface{}) {
-	for range Only.Once {
-		s := LogSprintfDate(format, args...)
-
-		_, m.err = m.logfile.Write([]byte(s))
-		if m.err != nil {
-			break
-		}
-	}
+	m.logfile.LogPrintfDate(format, args...)
 }
 
 func (m *Webcam) LogPrintf(format string, args ...interface{}) {
-	for range Only.Once {
-		s := LogSprintf(format, args...)
-
-		_, m.err = m.logfile.Write([]byte(s))
-		if m.err != nil {
-			break
-		}
-	}
+	m.logfile.LogPrintf(format, args...)
 }
 
 func (m *Webcam) LogClose() error {
-	for range Only.Once {
-		m.err = m.logfile.Close()
-		if m.err != nil {
-			break
-		}
-	}
-	return m.err
+	return m.logfile.Close()
 }

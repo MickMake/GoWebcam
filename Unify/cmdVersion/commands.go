@@ -19,93 +19,102 @@ func (v *Version) AttachCommands(cmd *cobra.Command, disableVflag bool) State {
 		}
 		v.cmd = cmd
 
-		v.SelfCmd = &cobra.Command{
+		v.SelfCmd = &cobra.Command {
 			Use:                   CmdVersion,
 			Short:                 fmt.Sprintf("Version - Self-manage this executable."),
 			Long:                  fmt.Sprintf("Version - Self-manage this executable."),
 			DisableFlagParsing:    true,
 			DisableFlagsInUseLine: true,
-			Run: func(cmd *cobra.Command, args []string) {
+			RunE: func(cmd *cobra.Command, args []string) error {
 				v.OldVersion = toVersionValue(v.ExecVersion)
 				v.State = v.CmdVersion(cmd, args...)
+				return v.State.GetState()
 			},
 		}
 
-		var selfUpdateCmd = &cobra.Command{
+		var selfUpdateCmd = &cobra.Command {
 			Use:                   CmdSelfUpdate,
 			Short:                 fmt.Sprintf("Version - Update version of executable."),
 			Long:                  fmt.Sprintf("Version - Check and update the latest version."),
 			DisableFlagParsing:    true,
 			DisableFlagsInUseLine: true,
-			Run: func(cmd *cobra.Command, args []string) {
+			RunE: func(cmd *cobra.Command, args []string) error {
 				v.OldVersion = toVersionValue(v.ExecVersion)
 				v.State = v.CmdVersionUpdate()
+				return v.State.GetState()
 			},
 		}
-
 		v.cmd.AddCommand(v.SelfCmd)
 		v.cmd.AddCommand(selfUpdateCmd)
 
-		var versionCheckCmd = &cobra.Command{
+		var versionCheckCmd = &cobra.Command {
 			Use:                   CmdVersionCheck,
 			Short:                 fmt.Sprintf("Version - Check and show any version updates."),
 			Long:                  fmt.Sprintf("Version - Check and show any version updates."),
 			DisableFlagParsing:    true,
 			DisableFlagsInUseLine: true,
-			Run: func(cmd *cobra.Command, args []string) {
+			RunE: func(cmd *cobra.Command, args []string) error {
 				v.OldVersion = toVersionValue(v.ExecVersion)
 				v.State = v.CmdVersionCheck()
+				return v.State.GetState()
 			},
 		}
-		var versionListCmd = &cobra.Command{
+		v.SelfCmd.AddCommand(versionCheckCmd)
+
+		var versionListCmd = &cobra.Command {
 			Use:                   CmdVersionList,
 			Short:                 fmt.Sprintf("Version - List available versions."),
 			Long:                  fmt.Sprintf("Version - List available versions."),
 			DisableFlagParsing:    true,
 			DisableFlagsInUseLine: true,
-			Run: func(cmd *cobra.Command, args []string) {
+			RunE: func(cmd *cobra.Command, args []string) error {
 				v.OldVersion = toVersionValue(v.ExecVersion)
 				v.State = v.CmdVersionList(args...)
+				return v.State.GetState()
 			},
 		}
-		var versionInfoCmd = &cobra.Command{
+		v.SelfCmd.AddCommand(versionListCmd)
+
+		var versionInfoCmd = &cobra.Command {
 			Use:                   CmdVersionInfo,
 			Short:                 fmt.Sprintf("Version - Info on current version."),
 			Long:                  fmt.Sprintf("Version - Info on current version."),
 			DisableFlagParsing:    true,
 			DisableFlagsInUseLine: true,
-			Run: func(cmd *cobra.Command, args []string) {
+			RunE: func(cmd *cobra.Command, args []string) error {
 				v.OldVersion = toVersionValue(v.ExecVersion)
 				v.State = v.CmdVersionInfo(args...)
+				return v.State.GetState()
 			},
 		}
-		var versionLatestCmd = &cobra.Command{
+		v.SelfCmd.AddCommand(versionInfoCmd)
+
+		var versionLatestCmd = &cobra.Command {
 			Use:                   CmdVersionLatest,
 			Short:                 fmt.Sprintf("Version - Info on latest version."),
 			Long:                  fmt.Sprintf("Version - Info on latest version."),
 			DisableFlagParsing:    true,
 			DisableFlagsInUseLine: true,
-			Run: func(cmd *cobra.Command, args []string) {
+			RunE: func(cmd *cobra.Command, args []string) error {
 				v.OldVersion = toVersionValue(v.ExecVersion)
 				v.State = v.CmdVersionInfo(CmdVersionLatest)
+				return v.State.GetState()
 			},
 		}
-		var versionUpdateCmd = &cobra.Command{
+		v.SelfCmd.AddCommand(versionLatestCmd)
+
+		var versionUpdateCmd = &cobra.Command {
 			Use:                   CmdVersionUpdate,
 			Short:                 fmt.Sprintf("Version - Update version of this executable."),
 			Long:                  fmt.Sprintf("Version - Check and update the latest version of this executable."),
 			DisableFlagParsing:    true,
 			DisableFlagsInUseLine: true,
-			Run: func(cmd *cobra.Command, args []string) {
+			RunE: func(cmd *cobra.Command, args []string) error {
 				v.OldVersion = toVersionValue(v.ExecVersion)
 				v.State = v.CmdVersionUpdate()
+				return v.State.GetState()
 			},
 		}
-
-		v.SelfCmd.AddCommand(versionCheckCmd)
-		v.SelfCmd.AddCommand(versionListCmd)
-		v.SelfCmd.AddCommand(versionInfoCmd)
-		v.SelfCmd.AddCommand(versionLatestCmd)
 		v.SelfCmd.AddCommand(versionUpdateCmd)
 
 		if !disableVflag {

@@ -2,8 +2,8 @@ package mmWebcam
 
 import (
 	"GoWebcam/Only"
+	"GoWebcam/Unify/cmdLog"
 	"encoding/json"
-	"log"
 	"os"
 	"time"
 )
@@ -53,14 +53,9 @@ func (c *Config) Read(fp string) (*Config, error) {
 			break
 		}
 
-		if c.Logfile != "" {
-			var lf *os.File
-			lf, err = os.OpenFile(c.Logfile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-			if err != nil {
-				break
-			}
-			log.SetOutput(lf)
-			// log.SetOutput(io.MultiWriter(os.Stdout, logFile))
+		err = cmdLog.LogFileSet(c.Logfile)
+		if err != nil {
+			break
 		}
 
 		if c.Dir == "" {

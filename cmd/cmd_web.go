@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"github.com/go-co-op/gocron"
 	"github.com/spf13/cobra"
+	"log"
 	"strconv"
 	"strings"
 )
@@ -130,7 +131,8 @@ func (w *Webcams) CmdWebGet(_ *cobra.Command, args []string) error {
 			prefix = args[0]
 		}
 
-		cmdLog.Printf("One-off fetch of webcam...\n")
+		Cmd.Error = cmdLog.LogFileSet("")
+		log.Printf("One-off fetch of webcam...\n")
 		webcam := mmWebcam.New(mmWebcam.Webcam{
 			Url:   args[1],
 
@@ -161,7 +163,8 @@ func (w *Webcams) CmdWebRun(_ *cobra.Command, _ []string) error {
 			break
 		}
 
-		cmdLog.Printf("One-off fetch of webcams from config...\n")
+		Cmd.Error = cmdLog.LogFileSet("")
+		log.Printf("One-off fetch of webcams from config...\n")
 		Cmd.Error = w.Config.RunAll()
 		if Cmd.Error != nil {
 			break
@@ -178,12 +181,12 @@ func (w *Webcams) CmdWebCron(_ *cobra.Command, _ []string) error {
 			break
 		}
 
+		Cmd.Error = cmdLog.LogFileSet("")
 		cmdLog.Printf("Cron based webcam fetch from config...\n")
 
 		crontab := make(map[string]*gocron.Job)
 		for index, webcam := range w.Config.Images {
 			var job *gocron.Job
-			// job, Cmd.Error = CmdCron.Scheduler.CronWithSeconds(webcam.Cron).StartImmediately().Tag(webcam.Prefix).Do(Webcams.Images[index].GetImage)
 			// job, Cmd.Error = CmdCron.AddJob(webcam.Cron, "Webcam:" + webcam.Prefix, Webcams.Images[index].GetImage)
 			job, Cmd.Error = Cmd.CmdCron.AddJob(webcam.Cron, webcam.Prefix, w.Config.Images[index].GetImage)
 			if Cmd.Error != nil {
@@ -194,7 +197,6 @@ func (w *Webcams) CmdWebCron(_ *cobra.Command, _ []string) error {
 		}
 
 		if w.Config.Report.Cron != "" {
-			// _, Cmd.Error = CmdCron.Scheduler.CronWithSeconds(Webcams.Report.Cron).StartImmediately().Tag("report").Do(CmdCron.PrintJobs)
 			_, Cmd.Error = Cmd.CmdCron.AddJob(w.Config.Report.Cron, "Report", Cmd.CmdCron.PrintJobs)
 			if Cmd.Error != nil {
 				break
@@ -203,7 +205,6 @@ func (w *Webcams) CmdWebCron(_ *cobra.Command, _ []string) error {
 
 		for index := range w.Config.Scripts {
 			name := fmt.Sprintf("script-%d", index)
-			// _, Cmd.Error = CmdCron.Scheduler.CronWithSeconds(Webcams.Scripts[index].Cron).Tag(name).Do(RunScript, name)
 			// _, Cmd.Error = CmdCron.AddJob(Webcams.Scripts[index].Cron, "Script:" + name, RunScript, name)
 			_, Cmd.Error = Cmd.CmdCron.AddJob(w.Config.Scripts[index].Cron, name, w.RunScript, name)
 			if Cmd.Error != nil {

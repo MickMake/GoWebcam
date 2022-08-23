@@ -23,7 +23,7 @@ func (h *Help) AttachCommands(cmd *cobra.Command) *cobra.Command {
 			DisableFlagParsing:    false,
 			DisableFlagsInUseLine: false,
 			PreRunE:               h.InitArgs,
-			Run:                   h.CmHelpAll,
+			RunE:                  h.CmHelpAll,
 			Args:                  cobra.RangeArgs(0, 0),
 		}
 		cmd.AddCommand(h.SelfCmd)
@@ -44,7 +44,7 @@ func (h *Help) InitArgs(_ *cobra.Command, _ []string) error {
 	return err
 }
 
-func (h *Help) CmHelpAll(cmd *cobra.Command, args []string) {
+func (h *Help) CmHelpAll(cmd *cobra.Command, args []string) error {
 	for range Only.Once {
 		if len(args) > 0 {
 			fmt.Println("Unknown sub-command.")
@@ -54,8 +54,10 @@ func (h *Help) CmHelpAll(cmd *cobra.Command, args []string) {
 
 		// cmd.SetUsageTemplate(DefaultFlagHelpTemplate)
 		cmd.SetUsageTemplate("")
-		_ = cmd.Help()
+		h.Error = cmd.Help()
 
 		PrintFlags(h.cmd)
 	}
+
+	return h.Error
 }

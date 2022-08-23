@@ -74,6 +74,13 @@ func (s *State) GetOk() error {
 	return s.ok
 }
 
+func (s *State) GetState() error {
+	if s.warning != nil {
+		return s.warning
+	}
+	return s.error
+}
+
 
 // ******************************************************************************** //
 
