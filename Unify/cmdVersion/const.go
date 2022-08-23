@@ -1,4 +1,4 @@
-package mmVersion
+package cmdVersion
 
 const (
 	errorNoRepo       = "repo is not defined - selfupdate disabled"

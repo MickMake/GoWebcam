@@ -2,7 +2,11 @@ package cmd
 
 import (
 	"GoWebcam/Only"
-	"GoWebcam/mmVersion"
+	"GoWebcam/Unify/cmdConfig"
+	"GoWebcam/Unify/cmdCron"
+	"GoWebcam/Unify/cmdDaemon"
+	"GoWebcam/Unify/cmdHelp"
+	"GoWebcam/Unify/cmdVersion"
 	"GoWebcam/mmWebcam"
 	"errors"
 	"github.com/spf13/cobra"
@@ -33,9 +37,13 @@ type CommandArgs struct {
 	Error error
 }
 
-var Cmd CommandArgs
-var Webcams     *mmWebcam.Config
-var CmdVersion *mmVersion.Version
+var Cmd        CommandArgs
+var Webcams    *mmWebcam.Config
+var CmdVersion *cmdVersion.Version
+var CmdDaemon  *cmdDaemon.Daemon
+var CmdCron    *cmdCron.Cron
+var CmdConfig  *cmdConfig.Config
+var CmdHelp    *cmdHelp.Help
 
 
 func (ca *CommandArgs) IsValid() error {

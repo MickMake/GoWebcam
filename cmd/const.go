@@ -4,9 +4,6 @@ import "time"
 
 //goland:noinspection SpellCheckingInspection
 const (
-	EnvPrefix         = "WEBCAM"
-	defaultConfigFile = "config.json"
-
 	flagConfigFile = "config"
 	flagDebug      = "debug"
 	flagQuiet      = "quiet"

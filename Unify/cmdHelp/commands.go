@@ -1,0 +1,58 @@
+package cmdHelp
+
+import (
+	"GoWebcam/Only"
+	"fmt"
+	"github.com/spf13/cobra"
+)
+
+
+func (h *Help) AttachCommands(cmd *cobra.Command) *cobra.Command {
+	for range Only.Once {
+		if cmd == nil {
+			break
+		}
+		h.cmd = cmd
+
+		// ******************************************************************************** //
+		h.SelfCmd = &cobra.Command{
+			Use:                   "help-all",
+			// Aliases:               []string{"flags"},
+			Short:                 fmt.Sprintf("Extended help"),
+			Long:                  fmt.Sprintf("Extended help"),
+			DisableFlagParsing:    false,
+			DisableFlagsInUseLine: false,
+			PreRunE:               h.InitArgs,
+			Run:                   h.CmHelpAll,
+			Args:                  cobra.RangeArgs(0, 0),
+		}
+		cmd.AddCommand(h.SelfCmd)
+		h.SelfCmd.Example = PrintExamples(h.SelfCmd, "")
+	}
+
+	return h.SelfCmd
+}
+
+func (h *Help) InitArgs(cmd *cobra.Command, args []string) error {
+	var err error
+	for range Only.Once {
+		//
+	}
+	return err
+}
+
+func (h *Help) CmHelpAll(cmd *cobra.Command, args []string) {
+	for range Only.Once {
+		if len(args) > 0 {
+			fmt.Println("Unknown sub-command.")
+		}
+
+		ExtendedHelp()
+
+		// cmd.SetUsageTemplate(DefaultFlagHelpTemplate)
+		cmd.SetUsageTemplate("")
+		_ = cmd.Help()
+
+		PrintFlags(cmd)	// @TODO - Find root command.
+	}
+}

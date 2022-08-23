@@ -1,4 +1,4 @@
-package mmVersion
+package cmdVersion
 
 import (
 	"GoWebcam/Only"
@@ -12,105 +12,104 @@ import (
 )
 
 
-func (v *Version) LoadCommands(cmd *cobra.Command, disableVflag bool) State {
+func (v *Version) AttachCommands(cmd *cobra.Command, disableVflag bool) State {
 	for range Only.Once {
 		if cmd == nil {
 			break
 		}
 		v.cmd = cmd
 
-		var versionCmd = &cobra.Command{
+		v.SelfCmd = &cobra.Command{
 			Use:                   CmdVersion,
-			Short:                 fmt.Sprintf(v.CmdName) + fmt.Sprintf(" - Self-manage this executable."),
-			Long:                  fmt.Sprintf(v.CmdName) + fmt.Sprintf(" - Self-manage this executable."),
+			Short:                 fmt.Sprintf("Version - Self-manage this executable."),
+			Long:                  fmt.Sprintf("Version - Self-manage this executable."),
 			DisableFlagParsing:    true,
 			DisableFlagsInUseLine: true,
 			Run: func(cmd *cobra.Command, args []string) {
-				v.OldVersion = toVersionValue(v.CmdVersion)
-				v.State = v.Version(cmd, args...)
+				v.OldVersion = toVersionValue(v.ExecVersion)
+				v.State = v.CmdVersion(cmd, args...)
 			},
 		}
-		v.SelfCmd = versionCmd
 
 		var selfUpdateCmd = &cobra.Command{
 			Use:                   CmdSelfUpdate,
-			Short:                 fmt.Sprintf(v.CmdName) + fmt.Sprintf(" - Update version of executable."),
-			Long:                  fmt.Sprintf(v.CmdName) + fmt.Sprintf(" - Check and update the latest version."),
+			Short:                 fmt.Sprintf("Version - Update version of executable."),
+			Long:                  fmt.Sprintf("Version - Check and update the latest version."),
 			DisableFlagParsing:    true,
 			DisableFlagsInUseLine: true,
 			Run: func(cmd *cobra.Command, args []string) {
-				v.OldVersion = toVersionValue(v.CmdVersion)
-				v.State = v.VersionUpdate()
+				v.OldVersion = toVersionValue(v.ExecVersion)
+				v.State = v.CmdVersionUpdate()
 			},
 		}
 
-		v.cmd.AddCommand(versionCmd)
+		v.cmd.AddCommand(v.SelfCmd)
 		v.cmd.AddCommand(selfUpdateCmd)
 
 		var versionCheckCmd = &cobra.Command{
 			Use:                   CmdVersionCheck,
-			Short:                 fmt.Sprintf(CmdVersion) + fmt.Sprintf(" - Check and show any version updates."),
-			Long:                  fmt.Sprintf(CmdVersion) + fmt.Sprintf(" - Check and show any version updates."),
+			Short:                 fmt.Sprintf("Version - Check and show any version updates."),
+			Long:                  fmt.Sprintf("Version - Check and show any version updates."),
 			DisableFlagParsing:    true,
 			DisableFlagsInUseLine: true,
 			Run: func(cmd *cobra.Command, args []string) {
-				v.OldVersion = toVersionValue(v.CmdVersion)
-				v.State = v.VersionCheck()
+				v.OldVersion = toVersionValue(v.ExecVersion)
+				v.State = v.CmdVersionCheck()
 			},
 		}
 		var versionListCmd = &cobra.Command{
 			Use:                   CmdVersionList,
-			Short:                 fmt.Sprintf(CmdVersion) + fmt.Sprintf(" - List available versions."),
-			Long:                  fmt.Sprintf(CmdVersion) + fmt.Sprintf(" - List available versions."),
+			Short:                 fmt.Sprintf("Version - List available versions."),
+			Long:                  fmt.Sprintf("Version - List available versions."),
 			DisableFlagParsing:    true,
 			DisableFlagsInUseLine: true,
 			Run: func(cmd *cobra.Command, args []string) {
-				v.OldVersion = toVersionValue(v.CmdVersion)
-				v.State = v.VersionList(args...)
+				v.OldVersion = toVersionValue(v.ExecVersion)
+				v.State = v.CmdVersionList(args...)
 			},
 		}
 		var versionInfoCmd = &cobra.Command{
 			Use:                   CmdVersionInfo,
-			Short:                 fmt.Sprintf(CmdVersion) + fmt.Sprintf(" - Info on current version."),
-			Long:                  fmt.Sprintf(CmdVersion) + fmt.Sprintf(" - Info on current version."),
+			Short:                 fmt.Sprintf("Version - Info on current version."),
+			Long:                  fmt.Sprintf("Version - Info on current version."),
 			DisableFlagParsing:    true,
 			DisableFlagsInUseLine: true,
 			Run: func(cmd *cobra.Command, args []string) {
-				v.OldVersion = toVersionValue(v.CmdVersion)
-				v.State = v.VersionInfo(args...)
+				v.OldVersion = toVersionValue(v.ExecVersion)
+				v.State = v.CmdVersionInfo(args...)
 			},
 		}
 		var versionLatestCmd = &cobra.Command{
 			Use:                   CmdVersionLatest,
-			Short:                 fmt.Sprintf(CmdVersion) + fmt.Sprintf(" - Info on latest version."),
-			Long:                  fmt.Sprintf(CmdVersion) + fmt.Sprintf(" - Info on latest version."),
+			Short:                 fmt.Sprintf("Version - Info on latest version."),
+			Long:                  fmt.Sprintf("Version - Info on latest version."),
 			DisableFlagParsing:    true,
 			DisableFlagsInUseLine: true,
 			Run: func(cmd *cobra.Command, args []string) {
-				v.OldVersion = toVersionValue(v.CmdVersion)
-				v.State = v.VersionInfo(CmdVersionLatest)
+				v.OldVersion = toVersionValue(v.ExecVersion)
+				v.State = v.CmdVersionInfo(CmdVersionLatest)
 			},
 		}
 		var versionUpdateCmd = &cobra.Command{
 			Use:                   CmdVersionUpdate,
-			Short:                 fmt.Sprintf(CmdVersion) + fmt.Sprintf(" - Update version of this executable."),
-			Long:                  fmt.Sprintf(CmdVersion) + fmt.Sprintf(" - Check and update the latest version of this executable."),
+			Short:                 fmt.Sprintf("Version - Update version of this executable."),
+			Long:                  fmt.Sprintf("Version - Check and update the latest version of this executable."),
 			DisableFlagParsing:    true,
 			DisableFlagsInUseLine: true,
 			Run: func(cmd *cobra.Command, args []string) {
-				v.OldVersion = toVersionValue(v.CmdVersion)
-				v.State = v.VersionUpdate()
+				v.OldVersion = toVersionValue(v.ExecVersion)
+				v.State = v.CmdVersionUpdate()
 			},
 		}
 
-		versionCmd.AddCommand(versionCheckCmd)
-		versionCmd.AddCommand(versionListCmd)
-		versionCmd.AddCommand(versionInfoCmd)
-		versionCmd.AddCommand(versionLatestCmd)
-		versionCmd.AddCommand(versionUpdateCmd)
+		v.SelfCmd.AddCommand(versionCheckCmd)
+		v.SelfCmd.AddCommand(versionListCmd)
+		v.SelfCmd.AddCommand(versionInfoCmd)
+		v.SelfCmd.AddCommand(versionLatestCmd)
+		v.SelfCmd.AddCommand(versionUpdateCmd)
 
 		if !disableVflag {
-			v.cmd.Flags().BoolP(FlagVersion, "v", false, fmt.Sprintf("Display version of %s", v.CmdName))
+			v.cmd.Flags().BoolP(FlagVersion, "v", false, fmt.Sprintf("Display version of %s", v.ExecName))
 		}
 
 		v.cmd.SetVersionTemplate(DefaultVersionTemplate)
@@ -119,9 +118,9 @@ func (v *Version) LoadCommands(cmd *cobra.Command, disableVflag bool) State {
 	return v.State
 }
 
-func (v *Version) Version(cmd *cobra.Command, args ...string) State {
+func (v *Version) CmdVersion(cmd *cobra.Command, args ...string) State {
 	for range Only.Once {
-		v.VersionShow()
+		v.CmdVersionShow()
 		// su.SetHelp(cmd)
 		_ = cmd.Help()
 		v.State.SetOk("")
@@ -129,13 +128,13 @@ func (v *Version) Version(cmd *cobra.Command, args ...string) State {
 	return v.State
 }
 
-func (v *Version) VersionShow() State {
+func (v *Version) CmdVersionShow() State {
 	v.PrintNameVersion()
 	v.State.SetOk("")
 	return v.State
 }
 
-func (v *Version) VersionInfo(args ...string) State {
+func (v *Version) CmdVersionInfo(args ...string) State {
 	for range Only.Once {
 		if len(args) == 0 {
 			args = []string{CmdVersionLatest}
@@ -153,7 +152,7 @@ func (v *Version) VersionInfo(args ...string) State {
 	return v.State
 }
 
-func (v *Version) VersionList(args ...string) State {
+func (v *Version) CmdVersionList(args ...string) State {
 	for range Only.Once {
 		token := os.Getenv("GITHUB_TOKEN")
 		if token == "" {
@@ -186,7 +185,7 @@ func (v *Version) VersionList(args ...string) State {
 	return v.State
 }
 
-func (v *Version) VersionCheck() State {
+func (v *Version) CmdVersionCheck() State {
 	for range Only.Once {
 		v.State = v.IsUpdated(true)
 		if v.State.IsError() {
@@ -197,7 +196,7 @@ func (v *Version) VersionCheck() State {
 	return v.State
 }
 
-func (v *Version) VersionUpdate() State {
+func (v *Version) CmdVersionUpdate() State {
 	for range Only.Once {
 		v.State = v.IsUpdated(false)
 		if v.State.IsError() {
@@ -242,7 +241,7 @@ func (v *Version) FlagCheckVersion(cmd *cobra.Command) bool {
 		// Show version.
 		ok, _ = fl.GetBool(FlagVersion)
 		if ok {
-			v.VersionShow()
+			v.CmdVersionShow()
 			break
 		}
 	}

@@ -1,4 +1,4 @@
-package mmVersion
+package cmdVersion
 
 import (
 	"GoWebcam/Only"
@@ -37,10 +37,10 @@ func (v *Version) SetCmd(a ...string) error {
 func (v *Version) IsBootstrapBinary() bool {
 	var ok bool
 	for range Only.Once {
-		if v.CmdName != v.CmdFile {
+		if v.ExecName != v.CmdFile {
 			break
 		}
-		if v.CmdName != BootstrapBinaryName {
+		if v.ExecName != BootstrapBinaryName {
 			break
 		}
 		ok = true
@@ -148,7 +148,7 @@ func (v *Version) IsRunningAs(run string) bool {
 func (v *Version) IsRunningAsFile() bool {
 	// If OK - running executable file matches the application binary name.
 	//ok, err := regexp.MatchString("^" + r.CmdName, r.CmdFile)
-	ok := strings.HasPrefix(v.CmdName, v.CmdFile)
+	ok := strings.HasPrefix(v.ExecName, v.CmdFile)
 	return ok
 }
 

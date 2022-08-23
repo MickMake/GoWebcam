@@ -1,4 +1,4 @@
-package mmVersion
+package cmdVersion
 
 import (
 	"GoWebcam/Only"
@@ -46,10 +46,10 @@ type SelfUpdateArgs struct {
 
 //goland:noinspection ALL
 type Version struct {
-	CmdName        string		`json:"cmd_name" mapstructure:"cmd_name"`
-	CmdVersion     string		`json:"cmd_version" mapstructure:"cmd_version"`
-	CmdSourceRepo  UrlValue		`json:"cmd_source_repo" mapstructure:"cmd_source_repo"`
-	CmdBinaryRepo  UrlValue		`json:"cmd_binary_repo" mapstructure:"cmd_binary_repo"`
+	ExecName       string   `json:"cmd_name" mapstructure:"cmd_name"`
+	ExecVersion    string   `json:"cmd_version" mapstructure:"cmd_version"`
+	ExecSourceRepo UrlValue `json:"cmd_source_repo" mapstructure:"cmd_source_repo"`
+	ExecBinaryRepo UrlValue `json:"cmd_binary_repo" mapstructure:"cmd_binary_repo"`
 
 	Cmd            string		`json:"cmd" mapstructure:"cmd"`
 	CmdDir         string	    `json:"cmd_dir" mapstructure:"cmd_dir"`
@@ -91,7 +91,6 @@ type Version struct {
 	config     *selfupdate.Config
 	ref        *selfupdate.Updater
 
-	// Runtime    *Version
 	cmd        *cobra.Command
 	SelfCmd    *cobra.Command
 }
@@ -111,16 +110,16 @@ func (v *Version) IsValid() bool {
 		}
 
 		// Refer to binary repo definition first.
-		if v.CmdBinaryRepo.IsValid() {
-			v.useRepo = &v.CmdBinaryRepo
+		if v.ExecBinaryRepo.IsValid() {
+			v.useRepo = &v.ExecBinaryRepo
 			v.State.SetOk("")
 			ok = true
 			break
 		}
 
 		// If binary repo is not set, use source repo.
-		if v.CmdSourceRepo.IsValid() {
-			v.useRepo = &v.CmdSourceRepo
+		if v.ExecSourceRepo.IsValid() {
+			v.useRepo = &v.ExecSourceRepo
 			v.State.SetOk("")
 			ok = true
 			break
@@ -139,12 +138,12 @@ func (v *Version) getRepo() string {
 	var ret string
 
 	for range Only.Once {
-		if v.CmdBinaryRepo.IsValid() {
-			ret = v.CmdBinaryRepo.String()
+		if v.ExecBinaryRepo.IsValid() {
+			ret = v.ExecBinaryRepo.String()
 			break
 		}
-		if v.CmdSourceRepo.IsValid() {
-			ret = v.CmdSourceRepo.String()
+		if v.ExecSourceRepo.IsValid() {
+			ret = v.ExecSourceRepo.String()
 			break
 		}
 	}
@@ -155,11 +154,11 @@ func (v *Version) getRepo() string {
 func (v *Version) GetSemVer() *VersionValue {
 	// v := semver.MustParse(r.CmdVersion)
 	// return semver.Version(v.String())
-	return GetSemVer(v.CmdVersion)
+	return GetSemVer(v.ExecVersion)
 }
 
 func (v *Version) PrintNameVersion() {
-	fmt.Printf("%s ", v.CmdName)
+	fmt.Printf("%s ", v.ExecName)
 	fmt.Printf("v%s", v.CmdVersion)
 }
 
@@ -192,8 +191,8 @@ func (v *Version) SetRepos(source string, binary string) State {
 	// if state := ux.IfNilReturnError(r); state.IsError() {
 	// 	return state
 	// }
-	v.CmdSourceRepo = toUrlValue(source)
-	v.CmdBinaryRepo = toUrlValue(binary)
+	v.ExecSourceRepo = toUrlValue(source)
+	v.ExecBinaryRepo = toUrlValue(binary)
 
 	return v.State
 }
@@ -261,8 +260,8 @@ func New(binary string, version string, debugFlag bool) *Version {
 		}
 
 		ret = &Version{
-			CmdName:    binary,
-			CmdVersion: version,
+			ExecName:    binary,
+			ExecVersion: version,
 
 			Cmd:        "",
 			CmdDir:     "",
@@ -344,7 +343,7 @@ func New(binary string, version string, debugFlag bool) *Version {
 		//if runtime.GOOS == "windows" {
 		//	ret.BaseDir = ""
 		//} else {
-			ret.BaseDir.Set(ret.User.HomeDir, "." + ret.CmdName)
+			ret.BaseDir.Set(ret.User.HomeDir, "." + ret.ExecName)
 		//}
 
 		//if runtime.GOOS == "windows" {
@@ -403,7 +402,7 @@ func New(binary string, version string, debugFlag bool) *Version {
 			Filters:             []string{},
 		}
 
-		ret.useRepo = &ret.CmdBinaryRepo
+		ret.useRepo = &ret.ExecBinaryRepo
 
 		// Workaround for selfupdate not being flexible enough to support variable asset names
 		// Should enable a template similar to GoReleaser.

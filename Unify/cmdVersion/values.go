@@ -1,4 +1,4 @@
-package mmVersion
+package cmdVersion
 
 import (
 	"GoWebcam/Only"

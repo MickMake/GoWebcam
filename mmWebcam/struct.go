@@ -51,6 +51,9 @@ func New(req Webcam) Webcam {
 		ret.firstRun = true
 		ret.lastRefresh = time.Time{}
 
+		if ret.Dir == "" {
+			ret.Dir = "images"
+		}
 		ret.err = Mkdir(ret.Dir)
 		if ret.err != nil {
 			break

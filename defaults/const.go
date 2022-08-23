@@ -6,5 +6,7 @@ const (
 	SourceRepo      = "github.com/MickMake/" + BinaryName
 	BinaryRepo      = "github.com/MickMake/" + BinaryName
 
+	EnvPrefix         = "WEBCAM"
+
 	Debug           = false
 )

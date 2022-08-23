@@ -1,4 +1,4 @@
-package mmVersion
+package cmdVersion
 
 import (
 	"GoWebcam/Only"
@@ -158,11 +158,11 @@ func (v *Version) Set(s SelfUpdateArgs) State {
 	}
 
 	if s.binaryRepo != nil {
-		_ = v.CmdBinaryRepo.Set(*s.binaryRepo)
+		_ = v.ExecBinaryRepo.Set(*s.binaryRepo)
 	}
 
 	if s.sourceRepo != nil {
-		_ = v.CmdSourceRepo.Set(*s.sourceRepo)
+		_ = v.ExecSourceRepo.Set(*s.sourceRepo)
 	}
 
 	if s.logging != nil {
@@ -300,10 +300,10 @@ func (v *Version) GetRepo() string {
 func (v *Version) SetSourceRepo(value ...string) State {
 	for range Only.Once {
 		if v.OldVersion == nil {
-			v.OldVersion = v.CmdSourceRepo.Version
+			v.OldVersion = v.ExecSourceRepo.Version
 		}
 
-		_ = v.CmdSourceRepo.Set(value...)
+		_ = v.ExecSourceRepo.Set(value...)
 		if v.IsNotValid() {
 			v.State.SetError("Invalid value")
 		}
@@ -312,16 +312,16 @@ func (v *Version) SetSourceRepo(value ...string) State {
 }
 
 func (v *Version) GetSourceRepo() string {
-	return v.CmdSourceRepo.GetUrl()
+	return v.ExecSourceRepo.GetUrl()
 }
 
 func (v *Version) SetBinaryRepo(value ...string) State {
 	for range Only.Once {
 		if v.OldVersion == nil {
-			v.OldVersion = v.CmdBinaryRepo.Version
+			v.OldVersion = v.ExecBinaryRepo.Version
 		}
 
-		_ = v.CmdBinaryRepo.Set(value...)
+		_ = v.ExecBinaryRepo.Set(value...)
 		if v.IsNotValid() {
 			v.State.SetError("Invalid value")
 		}
@@ -330,7 +330,7 @@ func (v *Version) SetBinaryRepo(value ...string) State {
 }
 
 func (v *Version) GetBinaryRepo() string {
-	return v.CmdBinaryRepo.GetUrl()
+	return v.ExecBinaryRepo.GetUrl()
 }
 
 func (v *Version) UpdateTo(newVersion *VersionValue) State {
