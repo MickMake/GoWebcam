@@ -42,13 +42,6 @@ type CommandArgs struct {
 }
 
 var Cmd        CommandArgs
-// var Webcams    *mmWebcam.Config
-// var CmdWebcams *Webcams
-// var CmdVersion *cmdVersion.Version
-// var CmdDaemon  *cmdDaemon.Daemon
-// var CmdCron    *cmdCron.Cron
-// var CmdConfig  *cmdConfig.Config
-// var CmdHelp    *cmdHelp.Help
 
 
 func (ca *CommandArgs) IsValid() error {

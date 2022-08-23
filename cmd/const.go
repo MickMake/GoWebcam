@@ -27,11 +27,14 @@ const (
 const ExtendedHelpTemplate = `
 DefaultBinaryName - A simple automated webcam fetcher written in GoLang.
 
-This tool is a basic webcam image puller. It can:
-1. Pull any arbitrary image.
-2. Can handle username/passwords.
-3. Rename image files based on rounding, or tesseract OCR.
-4. Create movies of images.
+This is a simple webcam fetcher. It was an itch I needed to scratch.
+
+What it does:
+1. Regularly pull webcam images from any URL, (supports authentication).
+2. Only creates a new file if the image has changed.
+3. Allows for renaming of files based on time rounding, or Tesseract OCR.
+4. Run scripts periodically. EG: To create MP4 videos from captured images.
+5. Simple JSON config file.
 
 Use case example:
 # Simple cron pulling an image every 5 minutes.

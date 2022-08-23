@@ -28,7 +28,7 @@ func (c *Config) AttachCommands(cmd *cobra.Command) *cobra.Command {
 			Args:                  cobra.RangeArgs(0, 1),
 		}
 		cmd.AddCommand(c.SelfCmd)
-		c.SelfCmd.Example = cmdHelp.PrintExamples(c.SelfCmd, "read", "write", "write --git-dir=/some/other/directory")
+		c.SelfCmd.Example = cmdHelp.PrintExamples(c.SelfCmd, "read", "write", "write --timeout=60s")
 
 		// ******************************************************************************** //
 		var cmdConfigWrite = &cobra.Command{
@@ -42,7 +42,7 @@ func (c *Config) AttachCommands(cmd *cobra.Command) *cobra.Command {
 			Args:                  cobra.RangeArgs(0, 1),
 		}
 		c.SelfCmd.AddCommand(cmdConfigWrite)
-		cmdConfigWrite.Example = cmdHelp.PrintExamples(cmdConfigWrite, "", "--git-dir=/some/other/directory", "--diff-cmd=tkdiff")
+		cmdConfigWrite.Example = cmdHelp.PrintExamples(cmdConfigWrite, "", "write --timeout=60s", "--debug=true")
 
 		// ******************************************************************************** //
 		var cmdConfigRead = &cobra.Command{
