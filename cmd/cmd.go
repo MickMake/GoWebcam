@@ -35,7 +35,7 @@ func AttachRootCmd() *cobra.Command {
 		}
 
 		if Cmd.CmdConfig == nil {
-			Cmd.CmdConfig = cmdConfig.New()
+			Cmd.CmdConfig = cmdConfig.New(defaults.BinaryName)
 		}
 
 		if Cmd.CmdHelp == nil {
@@ -54,20 +54,16 @@ func AttachRootCmd() *cobra.Command {
 		}
 		SelfCmd.Example = cmdHelp.PrintExamples(SelfCmd, "")
 
-		// SelfCmd.SetHelpTemplate(cmdHelp.DefaultHelpTemplate)
-		// SelfCmd.SetUsageTemplate(cmdHelp.DefaultUsageTemplate)
-		// rootCmd.SetVersionTemplate(DefaultVersionTemplate)
-
-		SelfCmd.PersistentFlags().StringVarP(&Cmd.WebHost, flagWebHost, "", defaultHost, fmt.Sprintf("Web Host."))
-		Cmd.CmdConfig.SetDefault(flagWebHost, defaultHost)
-		SelfCmd.PersistentFlags().StringVarP(&Cmd.WebPort, flagWebPort, "", defaultPort, fmt.Sprintf("Web Port."))
-		Cmd.CmdConfig.SetDefault(flagWebPort, defaultPort)
-		SelfCmd.PersistentFlags().StringVarP(&Cmd.WebUsername, flagWebUsername, "u", defaultUsername, fmt.Sprintf("Web username."))
-		Cmd.CmdConfig.SetDefault(flagWebUsername, defaultUsername)
-		SelfCmd.PersistentFlags().StringVarP(&Cmd.WebPassword, flagWebPassword, "p", defaultPassword, fmt.Sprintf("Web password."))
-		Cmd.CmdConfig.SetDefault(flagWebPassword, defaultPassword)
-		SelfCmd.PersistentFlags().StringVarP(&Cmd.WebPrefix, flagWebPrefix, "", defaultPrefix, fmt.Sprintf("Web password."))
-		Cmd.CmdConfig.SetDefault(flagWebPrefix, defaultPrefix)
+		// SelfCmd.PersistentFlags().StringVarP(&Cmd.WebHost, flagWebHost, "", defaultHost, fmt.Sprintf("Web Host."))
+		// Cmd.CmdConfig.SetDefault(flagWebHost, defaultHost)
+		// SelfCmd.PersistentFlags().StringVarP(&Cmd.WebPort, flagWebPort, "", defaultPort, fmt.Sprintf("Web Port."))
+		// Cmd.CmdConfig.SetDefault(flagWebPort, defaultPort)
+		// SelfCmd.PersistentFlags().StringVarP(&Cmd.WebUsername, flagWebUsername, "u", defaultUsername, fmt.Sprintf("Web username."))
+		// Cmd.CmdConfig.SetDefault(flagWebUsername, defaultUsername)
+		// SelfCmd.PersistentFlags().StringVarP(&Cmd.WebPassword, flagWebPassword, "p", defaultPassword, fmt.Sprintf("Web password."))
+		// Cmd.CmdConfig.SetDefault(flagWebPassword, defaultPassword)
+		// SelfCmd.PersistentFlags().StringVarP(&Cmd.WebPrefix, flagWebPrefix, "", defaultPrefix, fmt.Sprintf("Web password."))
+		// Cmd.CmdConfig.SetDefault(flagWebPrefix, defaultPrefix)
 
 		SelfCmd.PersistentFlags().StringVar(&Cmd.ConfigFile, flagConfigFile, Cmd.ConfigFile, fmt.Sprintf("%s: config file.", defaults.BinaryName))
 		// _ = rootCmd.PersistentFlags().MarkHidden(flagConfigFile)

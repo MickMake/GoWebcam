@@ -2,7 +2,7 @@ package cmdHelp
 
 import (
 	"GoWebcam/Only"
-	"GoWebcam/defaults"
+	"GoWebcam/Unify/cmdVersion"
 	"fmt"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
@@ -52,7 +52,8 @@ func PrintFlagEnv(flag string) string {
 	fenv = strings.ToUpper(fenv)
 
 	// ret := fmt.Sprintf("--%s\t%s_%s\n", flag, EnvPrefix, fenv)
-	ret := fmt.Sprintf("%s_%s", defaults.EnvPrefix, fenv)
+	// ret := fmt.Sprintf("%s_%s", defaults.EnvPrefix, fenv)
+	ret := fmt.Sprintf("%s_%s", cmdVersion.GetEnvPrefix(), fenv)
 	return ret
 }
 

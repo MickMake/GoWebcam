@@ -2,7 +2,6 @@ package cmdVersion
 
 import (
 	"GoWebcam/Only"
-	"GoWebcam/defaults"
 	"errors"
 	"fmt"
 	"github.com/logrusorgru/aurora"
@@ -103,7 +102,8 @@ func Open(name string, enable bool) (*typeColours, error) {
 
 	for range Only.Once {
 		if name == "" {
-			name = defaults.BinaryVersion
+			// name = defaults.BinaryVersion
+			name = "Unify"
 		}
 		name += ": "
 

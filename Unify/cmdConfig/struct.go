@@ -2,7 +2,7 @@ package cmdConfig
 
 import (
 	"GoWebcam/Only"
-	"GoWebcam/defaults"
+	"GoWebcam/Unify/cmdVersion"
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -16,6 +16,7 @@ import (
 type Config struct {
 	Dir       string
 	File      string
+	EnvPrefix string
 	Error     error
 
 	// Flags     map[string]interface{}
@@ -26,13 +27,14 @@ type Config struct {
 }
 
 
-func New() *Config {
+func New(name string) *Config {
 	var ret *Config
 
 	for range Only.Once {
 		ret = &Config {
 			Dir: ".",
 			File: defaultConfigFile,
+			EnvPrefix: cmdVersion.GetEnvPrefix(),
 			Error: nil,
 
 			// Flags: make(map[string]interface{}),
@@ -46,7 +48,7 @@ func New() *Config {
 		if ret.Error != nil {
 			break
 		}
-		ret.SetDir(filepath.Join(ret.Dir, "." + defaults.BinaryName))
+		ret.SetDir(filepath.Join(ret.Dir, "." + name))
 
 		// Cmd.CacheDir, ret.Error = os.UserHomeDir()
 		// if ret.Error != nil {
@@ -108,9 +110,25 @@ func (c *Config) Init(_ *cobra.Command) error {
 			break
 		}
 
-		c.viper.SetEnvPrefix(defaults.EnvPrefix)
+		c.viper.SetEnvPrefix(c.EnvPrefix)
 		c.viper.AutomaticEnv() // read in environment variables that match
-		err = bindFlags(c.cmd, c.viper)
+		c.cmd.Flags().VisitAll(func(f *pflag.Flag) {
+			// Environment variables can't have dashes in them, so bind them to their equivalent
+			// keys with underscores, e.g. --favorite-color to STING_FAVORITE_COLOR
+			if strings.Contains(f.Name, "-") {
+				envVarSuffix := strings.ToUpper(strings.ReplaceAll(f.Name, "-", "_"))
+				err = c.viper.BindEnv(f.Name, fmt.Sprintf("%s_%s", c.EnvPrefix, envVarSuffix))
+			}
+
+			// Apply the viper config value to the flag when the flag is not set and viper has a value
+			if !f.Changed && c.viper.IsSet(f.Name) {
+				// val := c.viper.Get(f.Name)	// Doesn't handle time.Duration well.
+				// val := c.cmd.Flag(f.Name).Value.String()
+				val := f.Value.String()
+				err = c.cmd.Flags().Set(f.Name, val)
+			}
+		})
+
 		if err != nil {
 			break
 		}
@@ -135,11 +153,13 @@ func (c *Config) Open() error {
 		}
 
 		if os.IsNotExist(c.Error) {
-			// for key, value := range c.Flags {
-			// 	c.viper.SetDefault(key, value)
-			// }
 			c.cmd.Flags().VisitAll(func(f *pflag.Flag) {
-				c.viper.SetDefault(f.Name, f.Value)
+				switch f.Value.Type() {
+					case "duration":
+						c.viper.SetDefault(f.Name, f.Value.String())
+					default:
+						c.viper.SetDefault(f.Name, f.Value)
+					}
 			})
 
 			c.Error = c.viper.WriteConfig()
@@ -157,12 +177,6 @@ func (c *Config) Open() error {
 		if c.Error != nil {
 			break
 		}
-
-		// c.cmd.Flags().VisitAll(func(f *pflag.Flag) {
-		// 	c.Flags[f.Name] = f.Value
-		// })
-
-		// err = viper.Unmarshal(Cmd)
 	}
 
 	return c.Error
@@ -175,11 +189,13 @@ func (c *Config) Write() error {
 			break
 		}
 
-		// for key, value := range c.Flags {
-		// 	c.viper.Set(key, value)
-		// }
 		c.cmd.Flags().VisitAll(func(f *pflag.Flag) {
-			c.viper.Set(f.Name, f.Value)
+			switch f.Value.Type() {
+				case "duration":
+					c.viper.Set(f.Name, f.Value.String())
+				default:
+					c.viper.Set(f.Name, f.Value)
+			}
 		})
 
 		c.Error = c.viper.WriteConfig()
@@ -200,11 +216,8 @@ func (c *Config) Read() error {
 
 		_, _ = fmt.Fprintln(os.Stderr, "Config file settings:")
 		c.cmd.Flags().VisitAll(func(f *pflag.Flag) {
-			_, _ = fmt.Fprintf(os.Stderr, "%s:			%v\n", strings.ToTitle(f.Name), f.Value)
+			_, _ = fmt.Fprintf(os.Stderr, "%s:			%s\n", strings.ToTitle(f.Name), f.Value.String())
 		})
-		// for key := range c.Flags {
-		// 	_, _ = fmt.Fprintf(os.Stderr, "%s:			%v\n", strings.ToTitle(key), c.viper.Get(key))
-		// }
 	}
 
 	return c.Error

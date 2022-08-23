@@ -5,7 +5,6 @@ import (
 	"GoWebcam/Unify/cmdHelp"
 	"GoWebcam/Unify/cmdLog"
 	"GoWebcam/Unify/cmdVersion"
-	"GoWebcam/defaults"
 	"fmt"
 	"github.com/sevlyar/go-daemon"
 	"github.com/spf13/cobra"
@@ -118,13 +117,13 @@ func (d *Daemon) InitArgs(_ *cobra.Command, _ []string) error {
 	for range Only.Once {
 		// @TODO - Sort out this Daemon mess.
 		d.cntxt = &daemon.Context {
-			PidFileName: pidFile,
+			PidFileName: d.cmd.Name() + ".pid",
 			PidFilePerm: 0644,
 			LogFileName: d.cmd.Name() + ".log",
 			LogFilePerm: 0640,
 			WorkDir:     "./",
 			Umask:       027,
-			Args:        []string{ fmt.Sprintf("[%s]", defaults.BinaryName) },
+			Args:        []string{ fmt.Sprintf("[%s]", d.cmd.Name()) },
 			// 	Chroot:      "",
 			// 	Env:         nil,
 			// 	Credential:  nil,
@@ -152,9 +151,8 @@ func (d *Daemon) CmdDaemonExec(fn DaemonFunc, _ *cobra.Command, args []string) e
 			break
 		}
 
-		nargs := []string{ fmt.Sprintf("[%s]", defaults.BinaryName) }
-		nargs = append(nargs, args...)
-		d.cntxt.Args = nargs
+		d.cntxt.Args = []string{ fmt.Sprintf("[%s]", d.cmd.Name()) }
+		d.cntxt.Args = append(d.cntxt.Args, args...)
 
 		daemon.SetSigHandler(termHandler, syscall.SIGQUIT)
 		daemon.SetSigHandler(termHandler, syscall.SIGTERM)
@@ -162,7 +160,7 @@ func (d *Daemon) CmdDaemonExec(fn DaemonFunc, _ *cobra.Command, args []string) e
 
 		// go worker()
 
-		fmt.Printf("Starting daemon: %s\n", strings.Join(nargs, " "))
+		fmt.Printf("Starting daemon: %s\n", strings.Join(d.cntxt.Args, " "))
 		child, d.Error = d.cntxt.Reborn()
 		if d.Error != nil {
 			// log.Printf("Error: %s\n", err)

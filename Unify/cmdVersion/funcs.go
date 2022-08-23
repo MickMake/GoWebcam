@@ -2,6 +2,7 @@ package cmdVersion
 
 import (
 	"GoWebcam/Only"
+	"GoWebcam/defaults"
 	"context"
 	"errors"
 	"fmt"
@@ -186,6 +187,15 @@ func addFilters(Binary string, Os string, Arch string) []string {
 		ret = append(ret, addFilters(Binary, Os, "x86_64.*")...)
 		ret = append(ret, addFilters(Binary, Os, "64.*")...)
 		ret = append(ret, addFilters(Binary, Os, "64bit.*")...)
+	}
+	return ret
+}
+
+func GetEnvPrefix() string {
+	var ret string
+	ret = strings.ToUpper(strings.ReplaceAll(defaults.EnvPrefix, "-", "_"))
+	if ret == "" {
+		ret = strings.ToUpper(strings.ReplaceAll(defaults.BinaryName, "-", "_"))
 	}
 	return ret
 }

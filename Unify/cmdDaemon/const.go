@@ -1,10 +1,8 @@
 package cmdDaemon
 
-import "GoWebcam/defaults"
-
 
 const (
-	pidFile = defaults.BinaryName + ".pid"
+	// pidFile = defaults.BinaryName + ".pid"
 
 	CmdDaemon     = "daemon"
 	CmdDaemonExec = "exec"
