@@ -1,7 +1,7 @@
 package cmdVersion
 
 import (
-	"GoWebcam/Only"
+	"GoWebcam/Unify/Only"
 	"fmt"
 	"github.com/google/go-github/v30/github"
 	"github.com/rhysd/go-github-selfupdate/selfupdate"

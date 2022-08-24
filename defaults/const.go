@@ -1,6 +1,7 @@
 package defaults
 
 const (
+	Description     = "Golang Webcam fetcher"
 	BinaryName      = "GoWebcam"
 	BinaryVersion   = "1.0.5"
 	SourceRepo      = "github.com/MickMake/" + BinaryName

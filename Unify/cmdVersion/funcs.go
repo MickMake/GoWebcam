@@ -1,7 +1,7 @@
 package cmdVersion
 
 import (
-	"GoWebcam/Only"
+	"GoWebcam/Unify/Only"
 	"GoWebcam/defaults"
 	"context"
 	"errors"

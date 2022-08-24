@@ -1,7 +1,7 @@
 package cmdDaemon
 
 import (
-	"GoWebcam/Only"
+	"GoWebcam/Unify/Only"
 	"github.com/sevlyar/go-daemon"
 	"github.com/spf13/cobra"
 )
@@ -29,4 +29,8 @@ func New() *Daemon {
 	}
 
 	return ret
+}
+
+func (d *Daemon) GetCmd() *cobra.Command {
+	return d.SelfCmd
 }

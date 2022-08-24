@@ -1,7 +1,7 @@
 package cmdConfig
 
 import (
-	"GoWebcam/Only"
+	"GoWebcam/Unify/Only"
 	"GoWebcam/Unify/cmdVersion"
 	"fmt"
 	"github.com/spf13/cobra"
@@ -70,6 +70,14 @@ func New(name string) *Config {
 	return ret
 }
 
+func (c *Config) GetViper() *viper.Viper {
+	return c.viper
+}
+
+func (c *Config) GetCmd() *cobra.Command {
+	return c.SelfCmd
+}
+
 func (c *Config) SetDir(path string) {
 	for range Only.Once {
 		if path == "" {
@@ -136,8 +144,43 @@ func (c *Config) Init(_ *cobra.Command) error {
 			break
 		}
 
+		// c.viper.SetEnvPrefix(c.EnvPrefix)
+		// c.viper.AutomaticEnv() // read in environment variables that match
+		// c.cmd.Flags().VisitAll(func(f *pflag.Flag) {
+		// 	// Environment variables can't have dashes in them, so bind them to their equivalent
+		// 	// keys with underscores, e.g. --favorite-color to STING_FAVORITE_COLOR
+		// 	if strings.Contains(f.Name, "-") {
+		// 		envVarSuffix := strings.ToUpper(strings.ReplaceAll(f.Name, "-", "_"))
+		// 		err = c.viper.BindEnv(f.Name, fmt.Sprintf("%s_%s", c.EnvPrefix, envVarSuffix))
+		// 	}
+		//
+		// 	// fmt.Printf("FLAG: %s => %s\n", f.Name, f.Value.String())
+		// 	// Apply the viper config value to the flag when the flag is not set and viper has a value
+		// 	if !f.Changed && c.viper.IsSet(f.Name) {
+		// 		// val := c.viper.Get(f.Name)	// Doesn't handle time.Duration well.
+		// 		// val := c.cmd.Flag(f.Name).Value.String()
+		// 		val := f.Value.String()
+		// 		err = c.cmd.Flags().Set(f.Name, val)
+		// 	}
+		// })
+		//
+		// if err != nil {
+		// 	break
+		// }
+	}
+
+	return err
+}
+
+// UpdateFlags - reads in config file and ENV variables if set.
+func (c *Config) UpdateFlags() error {
+	var err error
+
+	for range Only.Once {
 		c.viper.SetEnvPrefix(c.EnvPrefix)
 		c.viper.AutomaticEnv() // read in environment variables that match
+		//c.viper.BindFlagValues()
+
 		c.cmd.Flags().VisitAll(func(f *pflag.Flag) {
 			// Environment variables can't have dashes in them, so bind them to their equivalent
 			// keys with underscores, e.g. --favorite-color to STING_FAVORITE_COLOR
@@ -151,10 +194,29 @@ func (c *Config) Init(_ *cobra.Command) error {
 			if !f.Changed && c.viper.IsSet(f.Name) {
 				// val := c.viper.Get(f.Name)	// Doesn't handle time.Duration well.
 				// val := c.cmd.Flag(f.Name).Value.String()
-				val := f.Value.String()
+				// val := f.Value.String()
+				val := fmt.Sprintf("%v", c.viper.Get(f.Name))
 				err = c.cmd.Flags().Set(f.Name, val)
 			}
 		})
+
+		// c.cmd.PersistentFlags().VisitAll(func(f *pflag.Flag) {
+		// 	// Environment variables can't have dashes in them, so bind them to their equivalent
+		// 	// keys with underscores, e.g. --favorite-color to STING_FAVORITE_COLOR
+		// 	if strings.Contains(f.Name, "-") {
+		// 		envVarSuffix := strings.ToUpper(strings.ReplaceAll(f.Name, "-", "_"))
+		// 		err = c.viper.BindEnv(f.Name, fmt.Sprintf("%s_%s", c.EnvPrefix, envVarSuffix))
+		// 	}
+		//
+		// 	// fmt.Printf("FLAG: %s => %s\n", f.Name, f.Value.String())
+		// 	// Apply the viper config value to the flag when the flag is not set and viper has a value
+		// 	if !f.Changed && c.viper.IsSet(f.Name) {
+		// 		// val := c.viper.Get(f.Name)	// Doesn't handle time.Duration well.
+		// 		// val := c.cmd.Flag(f.Name).Value.String()
+		// 		val := f.Value.String()
+		// 		err = c.cmd.Flags().Set(f.Name, val)
+		// 	}
+		// })
 
 		if err != nil {
 			break
@@ -201,6 +263,11 @@ func (c *Config) Open() error {
 		}
 
 		c.Error = c.viper.MergeInConfig()
+		if c.Error != nil {
+			break
+		}
+
+		c.Error = c.UpdateFlags()
 		if c.Error != nil {
 			break
 		}

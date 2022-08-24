@@ -34,6 +34,7 @@ func Execute() error {
 	for range Only.Once {
 		unify := Unify.New(
 			Unify.Options {
+				Description:   defaults.Description,
 				BinaryName:    defaults.BinaryName,
 				BinaryVersion: defaults.BinaryVersion,
 				SourceRepo:    defaults.SourceRepo,
@@ -45,7 +46,7 @@ func Execute() error {
 		)
 
 		wc := mmWebcam.New()
-		wc.AttachCommands(unify.GetRootCmd())
+		wc.AttachCommands(unify.GetCmd())
 
 		err = unify.Execute()
 		if err != nil {

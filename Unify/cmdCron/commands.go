@@ -1,7 +1,7 @@
 package cmdCron
 
 import (
-	"GoWebcam/Only"
+	"GoWebcam/Unify/Only"
 	"GoWebcam/Unify/cmdHelp"
 	"GoWebcam/Unify/cmdLog"
 	"fmt"

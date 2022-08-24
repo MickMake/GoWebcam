@@ -1,7 +1,7 @@
 package cmdConfig
 
 import (
-	"GoWebcam/Only"
+	"GoWebcam/Unify/Only"
 	"GoWebcam/Unify/cmdHelp"
 	"fmt"
 	"github.com/spf13/cobra"

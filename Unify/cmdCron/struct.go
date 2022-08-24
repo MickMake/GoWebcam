@@ -1,7 +1,7 @@
 package cmdCron
 
 import (
-	"GoWebcam/Only"
+	"GoWebcam/Unify/Only"
 	"GoWebcam/Unify/cmdLog"
 	"bytes"
 	"errors"
@@ -39,6 +39,10 @@ func New() *Cron {
 	}
 
 	return ret
+}
+
+func (c *Cron) GetCmd() *cobra.Command {
+	return c.SelfCmd
 }
 
 func (c *Cron) PrintJobs() {

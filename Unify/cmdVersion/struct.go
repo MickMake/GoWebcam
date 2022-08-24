@@ -1,7 +1,7 @@
 package cmdVersion
 
 import (
-	"GoWebcam/Only"
+	"GoWebcam/Unify/Only"
 	"fmt"
 	"github.com/kardianos/osext"
 	"github.com/rhysd/go-github-selfupdate/selfupdate"
@@ -93,6 +93,10 @@ type Version struct {
 
 	cmd        *cobra.Command
 	SelfCmd    *cobra.Command
+}
+
+func (v *Version) GetCmd() *cobra.Command {
+	return v.SelfCmd
 }
 
 

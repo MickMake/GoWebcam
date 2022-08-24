@@ -1,7 +1,7 @@
 package cmdHelp
 
 import (
-	"GoWebcam/Only"
+	"GoWebcam/Unify/Only"
 	"fmt"
 	"github.com/spf13/cobra"
 	"strings"
@@ -42,6 +42,10 @@ func New() *Help {
 	}
 
 	return ret
+}
+
+func (h *Help) GetCmd() *cobra.Command {
+	return h.SelfCmd
 }
 
 func (h *Help) SetCommand(text string) {

@@ -1,7 +1,7 @@
 package cmdVersion
 
 import (
-	"GoWebcam/Only"
+	"GoWebcam/Unify/Only"
 	"GoWebcam/Unify/cmdHelp"
 	"context"
 	"fmt"
@@ -274,19 +274,7 @@ func (v *Version) FlagCheckVersion(cmd *cobra.Command) bool {
 	return ok
 }
 
-func (v *Version) GetCmd() *cobra.Command {
-	// var ret *cobra.Command
-	// if state := su.IsNil(); state.IsError() {
-	// 	return ret
-	// }
-	return v.SelfCmd
-}
-
 func (v *Version) CmdHelp() State {
-	// if state := su.IsNil(); state.IsError() {
-	// 	return state
-	// }
-
 	err := v.SelfCmd.Help()
 	if err != nil {
 		v.State.SetError(err.Error())

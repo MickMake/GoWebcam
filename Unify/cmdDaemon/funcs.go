@@ -1,7 +1,7 @@
 package cmdDaemon
 
 import (
-	"GoWebcam/Only"
+	"GoWebcam/Unify/Only"
 	"GoWebcam/Unify/cmdVersion"
 	"fmt"
 	"github.com/sevlyar/go-daemon"

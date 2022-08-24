@@ -1,7 +1,7 @@
 package cmdLog
 
 import (
-	"GoWebcam/Only"
+	"GoWebcam/Unify/Only"
 	"fmt"
 	"log"
 	"os"

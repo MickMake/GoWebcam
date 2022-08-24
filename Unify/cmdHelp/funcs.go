@@ -1,7 +1,7 @@
 package cmdHelp
 
 import (
-	"GoWebcam/Only"
+	"GoWebcam/Unify/Only"
 	"fmt"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
@@ -63,7 +63,7 @@ func (h *Help) PrintConfig(cmd *cobra.Command) {
 func PrintConfig(cmd *cobra.Command, prefix string) {
 	for range Only.Once {
 		table := tablewriter.NewWriter(os.Stdout)
-		table.SetHeader([]string{"Flag", "Short flag", "Environment", "Description", "Value"})
+		table.SetHeader([]string{"Flag", "Short flag", "Environment", "Description", "Value (* = default)"})
 		table.SetBorder(true)
 
 		cmd.PersistentFlags().SortFlags = false
@@ -80,7 +80,7 @@ func PrintConfig(cmd *cobra.Command, prefix string) {
 
 			value := flag.Value.String()
 			if value == flag.DefValue {
-				value += " (default)"
+				value += " *"
 			}
 			table.Append([]string{
 				"--" + flag.Name,

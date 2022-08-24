@@ -1,7 +1,7 @@
 package cmdCron
 
 import (
-	"GoWebcam/Only"
+	"GoWebcam/Unify/Only"
 	"GoWebcam/Unify/cmdLog"
 	"bufio"
 	"bytes"

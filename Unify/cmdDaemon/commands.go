@@ -1,7 +1,7 @@
 package cmdDaemon
 
 import (
-	"GoWebcam/Only"
+	"GoWebcam/Unify/Only"
 	"GoWebcam/Unify/cmdHelp"
 	"GoWebcam/Unify/cmdLog"
 	"GoWebcam/Unify/cmdVersion"

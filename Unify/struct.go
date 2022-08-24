@@ -9,7 +9,7 @@
 package Unify
 
 import (
-	"GoWebcam/Only"
+	"GoWebcam/Unify/Only"
 	"GoWebcam/Unify/cmdConfig"
 	"GoWebcam/Unify/cmdCron"
 	"GoWebcam/Unify/cmdDaemon"
@@ -19,6 +19,7 @@ import (
 	"fmt"
 	cc "github.com/ivanpirog/coloredcobra"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"time"
 )
 
@@ -55,9 +56,9 @@ func (u *Unify) InitCmds() error {
 	for range Only.Once {
 		// ******************************************************************************** //
 		u.Commands.CmdRoot = &cobra.Command {
-			Use:              defaults.BinaryName,
-			Short:            fmt.Sprintf("%s - Webcam fetcher", defaults.BinaryName),
-			Long:             fmt.Sprintf("%s - Webcam fetcher", defaults.BinaryName),
+			Use:              u.Options.BinaryName,
+			Short:            fmt.Sprintf("%s - %s", u.Options.BinaryName, u.Options.Description),
+			Long:             fmt.Sprintf("%s - %s", u.Options.BinaryName, u.Options.Description),
 			Run:              CmdRoot,
 			TraverseChildren: true,
 		}
@@ -160,13 +161,14 @@ func (c *Commands) Execute() error {
 	return c.CmdRoot.Execute()
 }
 
-// GetRootCmd -
-func (u *Unify) GetRootCmd() *cobra.Command {
-	var ret *cobra.Command
-	for range Only.Once {
-		ret = u.Commands.CmdRoot
-	}
-	return ret
+// GetCmd -
+func (u *Unify) GetCmd() *cobra.Command {
+	return u.Commands.CmdRoot
+}
+
+// GetViper -
+func (u *Unify) GetViper() *viper.Viper {
+	return u.Commands.CmdConfig.GetViper()
 }
 
 // CmdRoot -
@@ -189,6 +191,7 @@ type Unify struct {
 }
 
 type Options struct {
+	Description   string `json:"description"`
 	BinaryName    string `json:"binary_name"`
 	BinaryVersion string `json:"binary_version"`
 	SourceRepo    string `json:"source_repo"`
