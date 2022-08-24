@@ -7,6 +7,7 @@ import (
 )
 
 
+const Command = "help"
 func (h *Help) AttachCommands(cmd *cobra.Command) *cobra.Command {
 	for range Only.Once {
 		if cmd == nil {
@@ -15,11 +16,11 @@ func (h *Help) AttachCommands(cmd *cobra.Command) *cobra.Command {
 		h.cmd = cmd
 
 		// ******************************************************************************** //
-		h.SelfCmd = &cobra.Command{
+		h.SelfCmd = &cobra.Command {
 			Use:                   "help-all",
 			// Aliases:               []string{"flags"},
-			Short:                 fmt.Sprintf("Extended help"),
-			Long:                  fmt.Sprintf("Extended help"),
+			Short:                 fmt.Sprintf("Help - Extended help"),
+			Long:                  fmt.Sprintf("Help - Extended help"),
 			DisableFlagParsing:    false,
 			DisableFlagsInUseLine: false,
 			PreRunE:               h.InitArgs,
@@ -28,6 +29,7 @@ func (h *Help) AttachCommands(cmd *cobra.Command) *cobra.Command {
 		}
 		cmd.AddCommand(h.SelfCmd)
 		h.SelfCmd.Example = PrintExamples(h.SelfCmd, "")
+		h.SelfCmd.Annotations = map[string]string{"command":Command}
 
 		h.cmd.SetHelpTemplate(DefaultHelpTemplate)
 		h.cmd.SetUsageTemplate(DefaultUsageTemplate)
@@ -56,7 +58,7 @@ func (h *Help) CmHelpAll(cmd *cobra.Command, args []string) error {
 		cmd.SetUsageTemplate("")
 		h.Error = cmd.Help()
 
-		PrintFlags(h.cmd)
+		h.PrintConfig(h.cmd)
 	}
 
 	return h.Error

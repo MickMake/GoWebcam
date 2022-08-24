@@ -41,7 +41,7 @@ func New() *Webcams {
 	return ret
 }
 
-
+const Command = "web"
 func (w *Webcams) AttachCommands(cmd *cobra.Command) *cobra.Command {
 	for range Only.Once {
 		if cmd == nil {
@@ -51,7 +51,7 @@ func (w *Webcams) AttachCommands(cmd *cobra.Command) *cobra.Command {
 
 		// ******************************************************************************** //
 		w.SelfCmd = &cobra.Command{
-			Use:                   "web",
+			Use:                   Command,
 			Aliases:               []string{""},
 			Short:                 fmt.Sprintf("Webcam fetcher."),
 			Long:                  fmt.Sprintf("Webcam fetcher."),
@@ -63,6 +63,7 @@ func (w *Webcams) AttachCommands(cmd *cobra.Command) *cobra.Command {
 		}
 		cmd.AddCommand(w.SelfCmd)
 		w.SelfCmd.Example = cmdHelp.PrintExamples(w.SelfCmd, "run", "cron")
+		w.SelfCmd.Annotations = map[string]string{"command":Command}
 
 		// ******************************************************************************** //
 		var cmdWebGet = &cobra.Command{
@@ -78,6 +79,7 @@ func (w *Webcams) AttachCommands(cmd *cobra.Command) *cobra.Command {
 		}
 		w.SelfCmd.AddCommand(cmdWebGet)
 		cmdWebGet.Example = cmdHelp.PrintExamples(cmdWebGet, "Basin https://charlottepass.com.au/charlottepass/webcam/lucylodge/current.jpg")
+		cmdWebGet.Annotations = map[string]string{"command":Command}
 
 		// ******************************************************************************** //
 		var cmdWebRun = &cobra.Command{
@@ -93,6 +95,7 @@ func (w *Webcams) AttachCommands(cmd *cobra.Command) *cobra.Command {
 		}
 		w.SelfCmd.AddCommand(cmdWebRun)
 		cmdWebRun.Example = cmdHelp.PrintExamples(cmdWebRun, "")
+		cmdWebRun.Annotations = map[string]string{"command":Command}
 
 		// ******************************************************************************** //
 		var cmdWebCron = &cobra.Command{
@@ -108,6 +111,7 @@ func (w *Webcams) AttachCommands(cmd *cobra.Command) *cobra.Command {
 		}
 		w.SelfCmd.AddCommand(cmdWebCron)
 		cmdWebCron.Example = cmdHelp.PrintExamples(cmdWebCron, "")
+		cmdWebCron.Annotations = map[string]string{"command":Command}
 	}
 
 	return w.SelfCmd

@@ -14,6 +14,7 @@ import (
 )
 
 
+const Command = "daemon"
 func (d *Daemon) AttachCommands(cmd *cobra.Command) *cobra.Command {
 	for range Only.Once {
 		if cmd == nil {
@@ -35,6 +36,7 @@ func (d *Daemon) AttachCommands(cmd *cobra.Command) *cobra.Command {
 		}
 		cmd.AddCommand(d.SelfCmd)
 		d.SelfCmd.Example = cmdHelp.PrintExamples(d.SelfCmd, "exec web run", "kill")
+		d.SelfCmd.Annotations = map[string]string{"command":Command}
 
 		// ******************************************************************************** //
 		var cmdDaemonExec = &cobra.Command{
@@ -52,6 +54,7 @@ func (d *Daemon) AttachCommands(cmd *cobra.Command) *cobra.Command {
 		}
 		d.SelfCmd.AddCommand(cmdDaemonExec)
 		cmdDaemonExec.Example = cmdHelp.PrintExamples(cmdDaemonExec, "")
+		cmdDaemonExec.Annotations = map[string]string{"command":Command}
 
 		// ******************************************************************************** //
 		var cmdDaemonKill = &cobra.Command{
@@ -70,6 +73,7 @@ func (d *Daemon) AttachCommands(cmd *cobra.Command) *cobra.Command {
 		}
 		d.SelfCmd.AddCommand(cmdDaemonKill)
 		cmdDaemonKill.Example = cmdHelp.PrintExamples(cmdDaemonKill, "")
+		cmdDaemonKill.Annotations = map[string]string{"command":Command}
 
 		// ******************************************************************************** //
 		var cmdDaemonReload = &cobra.Command{
@@ -88,6 +92,7 @@ func (d *Daemon) AttachCommands(cmd *cobra.Command) *cobra.Command {
 		}
 		d.SelfCmd.AddCommand(cmdDaemonReload)
 		cmdDaemonReload.Example = cmdHelp.PrintExamples(cmdDaemonReload, "")
+		cmdDaemonReload.Annotations = map[string]string{"command":Command}
 
 		// ******************************************************************************** //
 		var cmdDaemonList = &cobra.Command{
@@ -106,6 +111,7 @@ func (d *Daemon) AttachCommands(cmd *cobra.Command) *cobra.Command {
 		}
 		d.SelfCmd.AddCommand(cmdDaemonList)
 		cmdDaemonList.Example = cmdHelp.PrintExamples(cmdDaemonList, "")
+		cmdDaemonList.Annotations = map[string]string{"command":Command}
 	}
 
 	return d.SelfCmd

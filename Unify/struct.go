@@ -1,3 +1,11 @@
+// Package Unify - This package contains common functionality that's used across multiple binaries.
+// It's an easy way to include some important functionality into every binary.
+// Currently, it provides:
+// - Cron scheduler.
+// - Daemonizing a process.
+// - Logging.
+// - Version control and self-update.
+// - Cobra/Viper integration.
 package Unify
 
 import (
@@ -14,6 +22,7 @@ import (
 )
 
 
+// New - Create new Unify instance.
 func New(options Options, flags Flags, ) *Unify {
 	var unify Unify
 
@@ -21,6 +30,9 @@ func New(options Options, flags Flags, ) *Unify {
 		unify.Options = options
 		unify.Flags = flags
 
+		if unify.Options.EnvPrefix == "" {
+			unify.Options.EnvPrefix = cmdVersion.GetEnvPrefix()
+		}
 
 		unify.Error = unify.InitCmds()
 		if unify.Error != nil {
@@ -36,6 +48,7 @@ func New(options Options, flags Flags, ) *Unify {
 	return &unify
 }
 
+// InitCmds -
 func (u *Unify) InitCmds() error {
 
 	for range Only.Once {
@@ -62,11 +75,13 @@ func (u *Unify) InitCmds() error {
 		u.Commands.CmdHelp = cmdHelp.New()
 		u.Commands.CmdHelp.SetCommand(u.Options.BinaryName)
 		u.Commands.CmdHelp.SetExtendedHelpTemplate(u.Options.HelpTemplate)
+		u.Commands.CmdHelp.SetEnvPrefix(u.Options.EnvPrefix)
 	}
 
 	return u.Error
 }
 
+// InitFlags -
 func (u *Unify) InitFlags() error {
 
 	for range Only.Once {
@@ -81,7 +96,7 @@ func (u *Unify) InitFlags() error {
 		// SelfCmd.PersistentFlags().StringVarP(&Cmd.WebPrefix, flagWebPrefix, "", defaultPrefix, fmt.Sprintf("Web password."))
 		// Cmd.CmdConfig.SetDefault(flagWebPrefix, defaultPrefix)
 
-		u.Commands.CmdRoot.PersistentFlags().StringVar(&u.Flags.ConfigFile, flagConfigFile, defaultConfig, fmt.Sprintf("%s: config file.", defaults.BinaryName))
+		u.Commands.CmdRoot.PersistentFlags().StringVar(&u.Flags.ConfigFile, cmdConfig.ConfigFileFlag, defaultConfig, fmt.Sprintf("%s: config file.", defaults.BinaryName))
 		// _ = rootCmd.PersistentFlags().MarkHidden(flagConfigFile)
 		u.Commands.CmdRoot.PersistentFlags().BoolVarP(&u.Flags.Debug, flagDebug, "", defaultDebug, fmt.Sprintf("%s: Debug mode.", defaults.BinaryName))
 		u.Commands.CmdConfig.SetDefault(flagDebug, false)
@@ -100,10 +115,11 @@ func (u *Unify) InitFlags() error {
 	return u.Error
 }
 
+// Execute -
 func (u *Unify) Execute() error {
 	var err error
 	for range Only.Once {
-		u.Commands.CmdVersion.AttachCommands(u.Commands.CmdRoot, false)
+		u.Commands.CmdVersion.AttachCommands(u.Commands.CmdRoot, true)
 		u.Commands.CmdDaemon.AttachCommands(u.Commands.CmdRoot)
 		u.Commands.CmdCron.AttachCommands(u.Commands.CmdRoot)
 		u.Commands.CmdConfig.AttachCommands(u.Commands.CmdRoot)
@@ -123,6 +139,12 @@ func (u *Unify) Execute() error {
 	return err
 }
 
+// Execute -
+func (c *Commands) Execute() error {
+	return c.CmdRoot.Execute()
+}
+
+// GetRootCmd -
 func (u *Unify) GetRootCmd() *cobra.Command {
 	var ret *cobra.Command
 	for range Only.Once {
@@ -131,10 +153,7 @@ func (u *Unify) GetRootCmd() *cobra.Command {
 	return ret
 }
 
-func (c *Commands) Execute() error {
-	return c.CmdRoot.Execute()
-}
-
+// CmdRoot -
 func CmdRoot(cmd *cobra.Command, args []string) {
 	for range Only.Once {
 		if len(args) == 0 {

@@ -2,7 +2,7 @@ package defaults
 
 const (
 	BinaryName      = "GoWebcam"
-	BinaryVersion   = "1.0.4"
+	BinaryVersion   = "1.0.5"
 	SourceRepo      = "github.com/MickMake/" + BinaryName
 	BinaryRepo      = "github.com/MickMake/" + BinaryName
 

@@ -2,6 +2,7 @@ package cmdVersion
 
 import (
 	"GoWebcam/Only"
+	"GoWebcam/Unify/cmdHelp"
 	"context"
 	"fmt"
 	"github.com/google/go-github/v30/github"
@@ -12,6 +13,7 @@ import (
 )
 
 
+const Command = "version"
 func (v *Version) AttachCommands(cmd *cobra.Command, disableVflag bool) State {
 	for range Only.Once {
 		if cmd == nil {
@@ -31,6 +33,9 @@ func (v *Version) AttachCommands(cmd *cobra.Command, disableVflag bool) State {
 				return v.State.GetState()
 			},
 		}
+		v.cmd.AddCommand(v.SelfCmd)
+		v.SelfCmd.Example = cmdHelp.PrintExamples(v.SelfCmd, "")
+		v.SelfCmd.Annotations = map[string]string{"command":Command}
 
 		var selfUpdateCmd = &cobra.Command {
 			Use:                   CmdSelfUpdate,
@@ -44,8 +49,9 @@ func (v *Version) AttachCommands(cmd *cobra.Command, disableVflag bool) State {
 				return v.State.GetState()
 			},
 		}
-		v.cmd.AddCommand(v.SelfCmd)
 		v.cmd.AddCommand(selfUpdateCmd)
+		selfUpdateCmd.Example = cmdHelp.PrintExamples(v.SelfCmd, "")
+		selfUpdateCmd.Annotations = map[string]string{"command":Command}
 
 		var versionCheckCmd = &cobra.Command {
 			Use:                   CmdVersionCheck,
@@ -60,6 +66,8 @@ func (v *Version) AttachCommands(cmd *cobra.Command, disableVflag bool) State {
 			},
 		}
 		v.SelfCmd.AddCommand(versionCheckCmd)
+		versionCheckCmd.Example = cmdHelp.PrintExamples(v.SelfCmd, "")
+		versionCheckCmd.Annotations = map[string]string{"command":Command}
 
 		var versionListCmd = &cobra.Command {
 			Use:                   CmdVersionList,
@@ -74,6 +82,8 @@ func (v *Version) AttachCommands(cmd *cobra.Command, disableVflag bool) State {
 			},
 		}
 		v.SelfCmd.AddCommand(versionListCmd)
+		versionListCmd.Example = cmdHelp.PrintExamples(v.SelfCmd, "")
+		versionListCmd.Annotations = map[string]string{"command":Command}
 
 		var versionInfoCmd = &cobra.Command {
 			Use:                   CmdVersionInfo,
@@ -88,6 +98,8 @@ func (v *Version) AttachCommands(cmd *cobra.Command, disableVflag bool) State {
 			},
 		}
 		v.SelfCmd.AddCommand(versionInfoCmd)
+		versionInfoCmd.Example = cmdHelp.PrintExamples(v.SelfCmd, "")
+		versionInfoCmd.Annotations = map[string]string{"command":Command}
 
 		var versionLatestCmd = &cobra.Command {
 			Use:                   CmdVersionLatest,
@@ -102,6 +114,8 @@ func (v *Version) AttachCommands(cmd *cobra.Command, disableVflag bool) State {
 			},
 		}
 		v.SelfCmd.AddCommand(versionLatestCmd)
+		versionLatestCmd.Example = cmdHelp.PrintExamples(v.SelfCmd, "")
+		versionLatestCmd.Annotations = map[string]string{"command":Command}
 
 		var versionUpdateCmd = &cobra.Command {
 			Use:                   CmdVersionUpdate,
@@ -116,6 +130,8 @@ func (v *Version) AttachCommands(cmd *cobra.Command, disableVflag bool) State {
 			},
 		}
 		v.SelfCmd.AddCommand(versionUpdateCmd)
+		versionUpdateCmd.Example = cmdHelp.PrintExamples(v.SelfCmd, "")
+		versionUpdateCmd.Annotations = map[string]string{"command":Command}
 
 		if !disableVflag {
 			v.cmd.Flags().BoolP(FlagVersion, "v", false, fmt.Sprintf("Display version of %s", v.ExecName))

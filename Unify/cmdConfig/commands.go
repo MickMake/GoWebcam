@@ -9,6 +9,7 @@ import (
 )
 
 
+const Command = "config"
 func (c *Config) AttachCommands(cmd *cobra.Command) *cobra.Command {
 	for range Only.Once {
 		if cmd == nil {
@@ -18,7 +19,7 @@ func (c *Config) AttachCommands(cmd *cobra.Command) *cobra.Command {
 
 		// ******************************************************************************** //
 		c.SelfCmd = &cobra.Command{
-			Use:                   "config",
+			Use:                   Command,
 			Short:                 "Cron - Create, update or show config file.",
 			Long:                  "Cron - Create, update or show config file.",
 			DisableFlagParsing:    false,
@@ -29,6 +30,7 @@ func (c *Config) AttachCommands(cmd *cobra.Command) *cobra.Command {
 		}
 		cmd.AddCommand(c.SelfCmd)
 		c.SelfCmd.Example = cmdHelp.PrintExamples(c.SelfCmd, "read", "write", "write --timeout=60s")
+		c.SelfCmd.Annotations = map[string]string{"command":Command}
 
 		// ******************************************************************************** //
 		var cmdConfigWrite = &cobra.Command{
@@ -43,6 +45,7 @@ func (c *Config) AttachCommands(cmd *cobra.Command) *cobra.Command {
 		}
 		c.SelfCmd.AddCommand(cmdConfigWrite)
 		cmdConfigWrite.Example = cmdHelp.PrintExamples(cmdConfigWrite, "", "write --timeout=60s", "--debug=true")
+		cmdConfigWrite.Annotations = map[string]string{"command":Command}
 
 		// ******************************************************************************** //
 		var cmdConfigRead = &cobra.Command{
@@ -57,6 +60,7 @@ func (c *Config) AttachCommands(cmd *cobra.Command) *cobra.Command {
 		}
 		c.SelfCmd.AddCommand(cmdConfigRead)
 		cmdConfigRead.Example = cmdHelp.PrintExamples(cmdConfigRead, "")
+		cmdConfigRead.Annotations = map[string]string{"command":Command}
 	}
 
 	return c.SelfCmd
@@ -96,7 +100,7 @@ func (c *Config) CmdWrite(_ *cobra.Command, args []string) error {
 
 		_, _ = fmt.Fprintf(os.Stderr, "Using config file '%s'\n", c.viper.ConfigFileUsed())
 		fmt.Println("New config:")
-		cmdHelp.PrintConfig(c.cmd)
+		cmdHelp.PrintConfig(c.cmd, c.EnvPrefix)
 
 		c.Error = c.Write()
 		if c.Error != nil {
@@ -121,7 +125,7 @@ func (c *Config) CmdRead(_ *cobra.Command, args []string) error {
 
 		_, _ = fmt.Fprintf(os.Stderr, "Using config file '%s'\n", c.viper.ConfigFileUsed())
 
-		cmdHelp.PrintConfig(c.cmd)	// rootCmd
+		cmdHelp.PrintConfig(c.cmd, c.EnvPrefix) // rootCmd
 	}
 
 	return c.Error

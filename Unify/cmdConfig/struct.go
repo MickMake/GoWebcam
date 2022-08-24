@@ -99,11 +99,37 @@ func (c *Config) SetFile(fn string) {
 	}
 }
 
+func (c *Config) SetPath(path string) {
+	for range Only.Once {
+		if path == "" {
+			break
+		}
+
+		var dir string
+		dir, c.Error = filepath.Abs(filepath.Dir(path))
+		if c.Error != nil {
+			break
+		}
+		c.SetDir(dir)
+
+		path = filepath.Base(path)
+		c.SetFile(path)
+	}
+}
+
 // Init reads in config file and ENV variables if set.
 func (c *Config) Init(_ *cobra.Command) error {
 	var err error
 
 	for range Only.Once {
+		// Check for change to config file specified in flags.
+		config := c.cmd.Flag(ConfigFileFlag).Value.String()
+		// fmt.Printf("config: %s\n", config)
+		if config != "" {
+			c.SetPath(config)
+		}
+		// fmt.Printf("config: %s\n", c.viper.ConfigFileUsed())
+
 		// If a config file is found, read it in.
 		err = c.Open()
 		if err != nil {
@@ -120,6 +146,7 @@ func (c *Config) Init(_ *cobra.Command) error {
 				err = c.viper.BindEnv(f.Name, fmt.Sprintf("%s_%s", c.EnvPrefix, envVarSuffix))
 			}
 
+			// fmt.Printf("FLAG: %s => %s\n", f.Name, f.Value.String())
 			// Apply the viper config value to the flag when the flag is not set and viper has a value
 			if !f.Changed && c.viper.IsSet(f.Name) {
 				// val := c.viper.Get(f.Name)	// Doesn't handle time.Duration well.

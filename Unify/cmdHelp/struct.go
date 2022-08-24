@@ -7,17 +7,19 @@ import (
 	"strings"
 )
 
+
 type Help struct {
-	Error     error
+	Error error
 
-	Command      string
-	HelpTemplate string
-	UsageTemplate string
-	FlagHelpTemplate string
+	Command              string
+	HelpTemplate         string
+	UsageTemplate        string
+	FlagHelpTemplate     string
 	ExtendedHelpTemplate string
+	EnvPrefix            string
 
-	cmd       *cobra.Command
-	SelfCmd   *cobra.Command
+	cmd     *cobra.Command
+	SelfCmd *cobra.Command
 }
 
 func New() *Help {
@@ -32,6 +34,7 @@ func New() *Help {
 			UsageTemplate:        DefaultUsageTemplate,
 			FlagHelpTemplate:     DefaultFlagHelpTemplate,
 			ExtendedHelpTemplate: ExtendedHelpTemplate,
+			EnvPrefix:            "",
 
 			cmd: nil,
 			SelfCmd: nil,
@@ -88,6 +91,16 @@ func (h *Help) SetExtendedHelpTemplate(text string) {
 		}
 
 		h.ExtendedHelpTemplate = strings.ReplaceAll(text, "DefaultBinaryName", h.Command)
+	}
+}
+
+func (h *Help) SetEnvPrefix(text string) {
+	for range Only.Once {
+		if text == "" {
+			break
+		}
+
+		h.EnvPrefix = strings.ToUpper(strings.ReplaceAll(text, "-", "_"))
 	}
 }
 

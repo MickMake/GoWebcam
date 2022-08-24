@@ -51,9 +51,6 @@ func Execute() error {
 		if err != nil {
 			break
 		}
-		// if Cmd.Error != nil {
-		// 	break
-		// }
 	}
 
 	return err
