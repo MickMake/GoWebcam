@@ -6,6 +6,7 @@ require (
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/go-co-op/gocron v1.13.0
 	github.com/google/go-github/v30 v30.1.0
+	github.com/ivanpirog/coloredcobra v1.0.1 // indirect
 	github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0 // indirect
 	github.com/logrusorgru/aurora v2.0.3+incompatible
 	github.com/mattn/go-runewidth v0.0.13 // indirect

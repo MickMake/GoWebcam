@@ -14,7 +14,7 @@ import (
 )
 
 
-const Command = "daemon"
+const Group = "Daemon"
 func (d *Daemon) AttachCommands(cmd *cobra.Command) *cobra.Command {
 	for range Only.Once {
 		if cmd == nil {
@@ -26,8 +26,8 @@ func (d *Daemon) AttachCommands(cmd *cobra.Command) *cobra.Command {
 		d.SelfCmd = &cobra.Command{
 			Use:                   CmdDaemon,
 			Aliases:               []string{""},
-			Short:                 fmt.Sprintf("Daemon - Daemonize commands."),
-			Long:                  fmt.Sprintf("Daemon - Daemonize commands."),
+			Short:                 fmt.Sprintf("Daemonize commands."),
+			Long:                  fmt.Sprintf("Daemonize commands."),
 			DisableFlagParsing:    false,
 			DisableFlagsInUseLine: false,
 			PreRunE:               d.InitArgs,
@@ -36,14 +36,14 @@ func (d *Daemon) AttachCommands(cmd *cobra.Command) *cobra.Command {
 		}
 		cmd.AddCommand(d.SelfCmd)
 		d.SelfCmd.Example = cmdHelp.PrintExamples(d.SelfCmd, "exec web run", "kill")
-		d.SelfCmd.Annotations = map[string]string{"command":Command}
+		d.SelfCmd.Annotations = map[string]string{"group": Group}
 
 		// ******************************************************************************** //
 		var cmdDaemonExec = &cobra.Command{
 			Use:                   CmdDaemonExec,
 			Aliases:               AliasesDaemonExec,
-			Short:                 fmt.Sprintf("Daemon - Execute commands as a daemon."),
-			Long:                  fmt.Sprintf("Daemon - Execute commands as a daemon."),
+			Short:                 fmt.Sprintf("Execute commands as a daemon."),
+			Long:                  fmt.Sprintf("Execute commands as a daemon."),
 			DisableFlagParsing:    false,
 			DisableFlagsInUseLine: false,
 			PreRunE:               d.InitArgs,
@@ -54,14 +54,14 @@ func (d *Daemon) AttachCommands(cmd *cobra.Command) *cobra.Command {
 		}
 		d.SelfCmd.AddCommand(cmdDaemonExec)
 		cmdDaemonExec.Example = cmdHelp.PrintExamples(cmdDaemonExec, "")
-		cmdDaemonExec.Annotations = map[string]string{"command":Command}
+		cmdDaemonExec.Annotations = map[string]string{"group": Group}
 
 		// ******************************************************************************** //
 		var cmdDaemonKill = &cobra.Command{
 			Use:                   CmdDaemonStop,
 			Aliases:               AliasesDaemonStop,
-			Short:                 fmt.Sprintf("Daemon - Terminate daemon."),
-			Long:                  fmt.Sprintf("Daemon - Terminate daemon."),
+			Short:                 fmt.Sprintf("Terminate daemon."),
+			Long:                  fmt.Sprintf("Terminate daemon."),
 			DisableFlagParsing:    false,
 			DisableFlagsInUseLine: false,
 			PreRunE:               d.InitArgs,
@@ -73,14 +73,14 @@ func (d *Daemon) AttachCommands(cmd *cobra.Command) *cobra.Command {
 		}
 		d.SelfCmd.AddCommand(cmdDaemonKill)
 		cmdDaemonKill.Example = cmdHelp.PrintExamples(cmdDaemonKill, "")
-		cmdDaemonKill.Annotations = map[string]string{"command":Command}
+		cmdDaemonKill.Annotations = map[string]string{"group": Group}
 
 		// ******************************************************************************** //
 		var cmdDaemonReload = &cobra.Command{
 			Use:                   CmdDaemonReload,
 			Aliases:               AliasesDaemonReload,
-			Short:                 fmt.Sprintf("Daemon - Reload daemon config."),
-			Long:                  fmt.Sprintf("Daemon - Reload daemon config."),
+			Short:                 fmt.Sprintf("Reload daemon config."),
+			Long:                  fmt.Sprintf("Reload daemon config."),
 			DisableFlagParsing:    false,
 			DisableFlagsInUseLine: false,
 			PreRunE:               d.InitArgs,
@@ -92,14 +92,14 @@ func (d *Daemon) AttachCommands(cmd *cobra.Command) *cobra.Command {
 		}
 		d.SelfCmd.AddCommand(cmdDaemonReload)
 		cmdDaemonReload.Example = cmdHelp.PrintExamples(cmdDaemonReload, "")
-		cmdDaemonReload.Annotations = map[string]string{"command":Command}
+		cmdDaemonReload.Annotations = map[string]string{"group": Group}
 
 		// ******************************************************************************** //
 		var cmdDaemonList = &cobra.Command{
 			Use:                   CmdDaemonList,
 			Aliases:               AliasesDaemonList,
-			Short:                 fmt.Sprintf("Daemon - List running daemon."),
-			Long:                  fmt.Sprintf("Daemon - List running daemon."),
+			Short:                 fmt.Sprintf("List running daemon."),
+			Long:                  fmt.Sprintf("List running daemon."),
 			DisableFlagParsing:    false,
 			DisableFlagsInUseLine: false,
 			PreRunE:               d.InitArgs,
@@ -111,7 +111,7 @@ func (d *Daemon) AttachCommands(cmd *cobra.Command) *cobra.Command {
 		}
 		d.SelfCmd.AddCommand(cmdDaemonList)
 		cmdDaemonList.Example = cmdHelp.PrintExamples(cmdDaemonList, "")
-		cmdDaemonList.Annotations = map[string]string{"command":Command}
+		cmdDaemonList.Annotations = map[string]string{"group": Group}
 	}
 
 	return d.SelfCmd

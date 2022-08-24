@@ -14,16 +14,16 @@ What it does is:
 ## Running examples
 
 # Simple cron pulling an image every 5 minutes.
-	% GoWebcam cron run  . ./5 . . . .  web get Basin https://charlottepass.com.au/charlottepass/webcam/lucylodge/current.jpg
+	% GoWebcam cron run  . ./5 . . . .  webcam get Basin https://charlottepass.com.au/charlottepass/webcam/lucylodge/current.jpg
 
 # Once-off run of all webcams defined in config.json file.
-	% GoWebcam web run
+	% GoWebcam webcam run
 
 # Pull webcam images as defined in config.json file, via cron.
-	% GoWebcam web cron
+	% GoWebcam webcam cron
 
 # Same as above, but run as a daemon.
-	% GoWebcam daemon exec  web cron
+	% GoWebcam daemon exec  webcam cron
 
 # List currently scheduled jobs.
 	% GoWebcam daemon list

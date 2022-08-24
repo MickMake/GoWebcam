@@ -41,7 +41,7 @@ func New() *Webcams {
 	return ret
 }
 
-const Command = "web"
+const Group = "Webcam"
 func (w *Webcams) AttachCommands(cmd *cobra.Command) *cobra.Command {
 	for range Only.Once {
 		if cmd == nil {
@@ -51,8 +51,8 @@ func (w *Webcams) AttachCommands(cmd *cobra.Command) *cobra.Command {
 
 		// ******************************************************************************** //
 		w.SelfCmd = &cobra.Command{
-			Use:                   Command,
-			Aliases:               []string{""},
+			Use:                   "webcam",
+			Aliases:               []string{"web"},
 			Short:                 fmt.Sprintf("Webcam fetcher."),
 			Long:                  fmt.Sprintf("Webcam fetcher."),
 			DisableFlagParsing:    false,
@@ -62,8 +62,8 @@ func (w *Webcams) AttachCommands(cmd *cobra.Command) *cobra.Command {
 			Args:                  cobra.MinimumNArgs(1),
 		}
 		cmd.AddCommand(w.SelfCmd)
-		w.SelfCmd.Example = cmdHelp.PrintExamples(w.SelfCmd, "run", "cron")
-		w.SelfCmd.Annotations = map[string]string{"command":Command}
+		w.SelfCmd.Example = cmdHelp.PrintExamples(w.SelfCmd, "get Basin https://charlottepass.com.au/charlottepass/webcam/lucylodge/current.jpg", "run", "cron")
+		w.SelfCmd.Annotations = map[string]string{"group": Group}
 
 		// ******************************************************************************** //
 		var cmdWebGet = &cobra.Command{
@@ -79,7 +79,7 @@ func (w *Webcams) AttachCommands(cmd *cobra.Command) *cobra.Command {
 		}
 		w.SelfCmd.AddCommand(cmdWebGet)
 		cmdWebGet.Example = cmdHelp.PrintExamples(cmdWebGet, "Basin https://charlottepass.com.au/charlottepass/webcam/lucylodge/current.jpg")
-		cmdWebGet.Annotations = map[string]string{"command":Command}
+		cmdWebGet.Annotations = map[string]string{"group": Group}
 
 		// ******************************************************************************** //
 		var cmdWebRun = &cobra.Command{
@@ -95,7 +95,7 @@ func (w *Webcams) AttachCommands(cmd *cobra.Command) *cobra.Command {
 		}
 		w.SelfCmd.AddCommand(cmdWebRun)
 		cmdWebRun.Example = cmdHelp.PrintExamples(cmdWebRun, "")
-		cmdWebRun.Annotations = map[string]string{"command":Command}
+		cmdWebRun.Annotations = map[string]string{"group": Group}
 
 		// ******************************************************************************** //
 		var cmdWebCron = &cobra.Command{
@@ -111,7 +111,7 @@ func (w *Webcams) AttachCommands(cmd *cobra.Command) *cobra.Command {
 		}
 		w.SelfCmd.AddCommand(cmdWebCron)
 		cmdWebCron.Example = cmdHelp.PrintExamples(cmdWebCron, "")
-		cmdWebCron.Annotations = map[string]string{"command":Command}
+		cmdWebCron.Annotations = map[string]string{"group": Group}
 	}
 
 	return w.SelfCmd

@@ -12,7 +12,7 @@ import (
 )
 
 
-const Command = "cron"
+const Group = "Cron"
 func (c *Cron) AttachCommands(cmd *cobra.Command) *cobra.Command {
 	for range Only.Once {
 		if cmd == nil {
@@ -22,10 +22,10 @@ func (c *Cron) AttachCommands(cmd *cobra.Command) *cobra.Command {
 
 		// ******************************************************************************** //
 		c.SelfCmd = &cobra.Command{
-			Use:                   Command,
+			Use:                   "cron",
 			Aliases:               []string{""},
-			Short:                 fmt.Sprintf("Cron - Run a command via schedule."),
-			Long:                  fmt.Sprintf("Cron - Run a command via schedule."),
+			Short:                 fmt.Sprintf("Run a command via schedule."),
+			Long:                  fmt.Sprintf("Run a command via schedule."),
 			DisableFlagParsing:    false,
 			DisableFlagsInUseLine: false,
 			PreRunE:               c.InitArgs,
@@ -34,14 +34,14 @@ func (c *Cron) AttachCommands(cmd *cobra.Command) *cobra.Command {
 		}
 		cmd.AddCommand(c.SelfCmd)
 		c.SelfCmd.Example = cmdHelp.PrintExamples(c.SelfCmd, "./5 . . . . web get Basin https://charlottepass.com.au/charlottepass/webcam/lucylodge/current.jpg", "00 12 . . . web get Basin https://charlottepass.com.au/charlottepass/webcam/lucylodge/current.jpg")
-		c.SelfCmd.Annotations = map[string]string{"command":Command}
+		c.SelfCmd.Annotations = map[string]string{"group": Group}
 
 		// ******************************************************************************** //
 		var cmdCronRun = &cobra.Command{
 			Use:                   "run <minute> <hour> <month day> <month> <week day>  <command>  <args ...>",
 			Aliases:               []string{""},
-			Short:                 fmt.Sprintf("Cron - Run scheduled a command."),
-			Long:                  fmt.Sprintf("Cron - Run scheduled a command."),
+			Short:                 fmt.Sprintf("Run scheduled a command."),
+			Long:                  fmt.Sprintf("Run scheduled a command."),
 			DisableFlagParsing:    false,
 			DisableFlagsInUseLine: false,
 			PreRunE:               c.InitArgs,
@@ -50,20 +50,20 @@ func (c *Cron) AttachCommands(cmd *cobra.Command) *cobra.Command {
 		}
 		c.SelfCmd.AddCommand(cmdCronRun)
 		cmdCronRun.Example = cmdHelp.PrintExamples(cmdCronRun, "./5 . . . . web get Basin https://charlottepass.com.au/charlottepass/webcam/lucylodge/current.jpg", "00 12 . . . web get Basin https://charlottepass.com.au/charlottepass/webcam/lucylodge/current.jpg")
-		cmdCronRun.Annotations = map[string]string{"command":Command}
+		cmdCronRun.Annotations = map[string]string{"group": Group}
 
 		// ******************************************************************************** //
 		var cmdConfigRead = &cobra.Command{}
 		c.SelfCmd.AddCommand(cmdConfigRead)
 		cmdConfigRead.Example = cmdHelp.PrintExamples(cmdConfigRead, "")
-		cmdConfigRead.Annotations = map[string]string{"command":Command}
+		cmdConfigRead.Annotations = map[string]string{"group": Group}
 
 		// ******************************************************************************** //
 		var cmdCronAdd = &cobra.Command{
 			Use:                   "add",
 			Aliases:               []string{""},
-			Short:                 fmt.Sprintf("Cron - Add scheduled a command."),
-			Long:                  fmt.Sprintf("Cron - Add scheduled a command."),
+			Short:                 fmt.Sprintf("Add scheduled a command."),
+			Long:                  fmt.Sprintf("Add scheduled a command."),
 			DisableFlagParsing:    false,
 			DisableFlagsInUseLine: false,
 			PreRunE:               c.InitArgs,
@@ -72,14 +72,14 @@ func (c *Cron) AttachCommands(cmd *cobra.Command) *cobra.Command {
 		}
 		c.SelfCmd.AddCommand(cmdCronAdd)
 		cmdCronAdd.Example = cmdHelp.PrintExamples(cmdCronAdd, "add")
-		cmdCronAdd.Annotations = map[string]string{"command":Command}
+		cmdCronAdd.Annotations = map[string]string{"group": Group}
 
 		// ******************************************************************************** //
 		var cmdCronRemove = &cobra.Command{
 			Use:                   "del",
 			Aliases:               []string{"remove"},
-			Short:                 fmt.Sprintf("Cron - Remove a scheduled command."),
-			Long:                  fmt.Sprintf("Cron - Remove a scheduled command."),
+			Short:                 fmt.Sprintf("Remove a scheduled command."),
+			Long:                  fmt.Sprintf("Remove a scheduled command."),
 			DisableFlagParsing:    false,
 			DisableFlagsInUseLine: false,
 			PreRunE:               c.InitArgs,
@@ -88,14 +88,14 @@ func (c *Cron) AttachCommands(cmd *cobra.Command) *cobra.Command {
 		}
 		c.SelfCmd.AddCommand(cmdCronRemove)
 		cmdCronRemove.Example = cmdHelp.PrintExamples(cmdCronRemove, "del")
-		cmdCronRemove.Annotations = map[string]string{"command":Command}
+		cmdCronRemove.Annotations = map[string]string{"group": Group}
 
 		// ******************************************************************************** //
 		var cmdCronList = &cobra.Command{
 			Use:                   "list",
 			Aliases:               []string{""},
-			Short:                 fmt.Sprintf("Cron - List scheduled commands."),
-			Long:                  fmt.Sprintf("Cron - List scheduled commands."),
+			Short:                 fmt.Sprintf("List scheduled commands."),
+			Long:                  fmt.Sprintf("List scheduled commands."),
 			DisableFlagParsing:    false,
 			DisableFlagsInUseLine: false,
 			PreRunE:               c.InitArgs,
@@ -104,7 +104,7 @@ func (c *Cron) AttachCommands(cmd *cobra.Command) *cobra.Command {
 		}
 		c.SelfCmd.AddCommand(cmdCronList)
 		cmdCronList.Example = cmdHelp.PrintExamples(cmdCronList, "list")
-		cmdCronList.Annotations = map[string]string{"command":Command}
+		cmdCronList.Annotations = map[string]string{"group": Group}
 	}
 
 	return c.SelfCmd

@@ -17,6 +17,7 @@ import (
 	"GoWebcam/Unify/cmdVersion"
 	"GoWebcam/defaults"
 	"fmt"
+	cc "github.com/ivanpirog/coloredcobra"
 	"github.com/spf13/cobra"
 	"time"
 )
@@ -130,6 +131,21 @@ func (u *Unify) Execute() error {
 			// You can bind cobra and viper in a few locations, but PersistencePreRunE on the root command works well
 			return u.Commands.CmdConfig.Init(cmd)
 		}
+
+		cc.Init(&cc.Config{
+			RootCmd:       u.Commands.CmdRoot,
+			Headings:      cc.HiCyan + cc.Bold + cc.Underline,
+			Commands:      cc.HiYellow + cc.Bold,
+			Example:       cc.Italic,
+			ExecName:      cc.Bold,
+			Flags:         cc.Bold,
+			NoExtraNewlines: true,
+			NoBottomNewline: true,
+			CmdShortDescr:   0,
+			FlagsDataType:   0,
+			FlagsDescr:      0,
+			Aliases:         0,
+		})
 
 		err = u.Commands.Execute()
 		if err != nil {

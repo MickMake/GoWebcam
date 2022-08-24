@@ -9,7 +9,7 @@ import (
 )
 
 
-const Command = "config"
+const Group = "Config"
 func (c *Config) AttachCommands(cmd *cobra.Command) *cobra.Command {
 	for range Only.Once {
 		if cmd == nil {
@@ -19,9 +19,9 @@ func (c *Config) AttachCommands(cmd *cobra.Command) *cobra.Command {
 
 		// ******************************************************************************** //
 		c.SelfCmd = &cobra.Command{
-			Use:                   Command,
-			Short:                 "Cron - Create, update or show config file.",
-			Long:                  "Cron - Create, update or show config file.",
+			Use:                   "config",
+			Short:                 "Create, update or show config file.",
+			Long:                  "Create, update or show config file.",
 			DisableFlagParsing:    false,
 			DisableFlagsInUseLine: false,
 			PreRunE:               c.InitArgs,
@@ -30,13 +30,13 @@ func (c *Config) AttachCommands(cmd *cobra.Command) *cobra.Command {
 		}
 		cmd.AddCommand(c.SelfCmd)
 		c.SelfCmd.Example = cmdHelp.PrintExamples(c.SelfCmd, "read", "write", "write --timeout=60s")
-		c.SelfCmd.Annotations = map[string]string{"command":Command}
+		c.SelfCmd.Annotations = map[string]string{"group": Group}
 
 		// ******************************************************************************** //
 		var cmdConfigWrite = &cobra.Command{
 			Use:                   "write",
-			Short:                 "Cron - Update config file from CLI args.",
-			Long:                  "Cron - Update config file from CLI args.",
+			Short:                 "Update config file from CLI args.",
+			Long:                  "Update config file from CLI args.",
 			DisableFlagParsing:    false,
 			DisableFlagsInUseLine: false,
 			PreRunE:               c.InitArgs,
@@ -45,13 +45,13 @@ func (c *Config) AttachCommands(cmd *cobra.Command) *cobra.Command {
 		}
 		c.SelfCmd.AddCommand(cmdConfigWrite)
 		cmdConfigWrite.Example = cmdHelp.PrintExamples(cmdConfigWrite, "", "write --timeout=60s", "--debug=true")
-		cmdConfigWrite.Annotations = map[string]string{"command":Command}
+		cmdConfigWrite.Annotations = map[string]string{"group": Group}
 
 		// ******************************************************************************** //
 		var cmdConfigRead = &cobra.Command{
 			Use:                   "read",
-			Short:                 "Cron - Read config file.",
-			Long:                  "Cron - Read config file.",
+			Short:                 "Read config file.",
+			Long:                  "Read config file.",
 			DisableFlagParsing:    false,
 			DisableFlagsInUseLine: false,
 			PreRunE:               c.InitArgs,
@@ -60,7 +60,7 @@ func (c *Config) AttachCommands(cmd *cobra.Command) *cobra.Command {
 		}
 		c.SelfCmd.AddCommand(cmdConfigRead)
 		cmdConfigRead.Example = cmdHelp.PrintExamples(cmdConfigRead, "")
-		cmdConfigRead.Annotations = map[string]string{"command":Command}
+		cmdConfigRead.Annotations = map[string]string{"group": Group}
 	}
 
 	return c.SelfCmd
