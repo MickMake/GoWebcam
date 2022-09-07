@@ -10,7 +10,6 @@ import (
 	"strings"
 )
 
-
 func (v *Version) Update() State {
 	for range Only.Once {
 		if v.IsNotValid() {
@@ -82,7 +81,7 @@ func (v *Version) IsUpdated(print bool) State {
 					fmt.Printf("%s\n", v.State.GetError())
 					fmt.Printf("Current version info unknown\n")
 					fmt.Printf(printVersion(latest))
-					}
+				}
 				break
 			}
 
@@ -242,17 +241,17 @@ func (v *Version) FetchVersion(version *VersionValue) *selfupdate.Release {
 		repo := v.useRepo.GetShortUrl()
 
 		switch {
-			case version.IsNotValid():
-				fallthrough
-			case version.IsLatest():
-				release, ok, err = v.ref.DetectLatest(repo)
+		case version.IsNotValid():
+			fallthrough
+		case version.IsLatest():
+			release, ok, err = v.ref.DetectLatest(repo)
 
-			default:
-				vs := version.String()
-				if !strings.HasPrefix(vs, "v") {
-					vs = "v" + vs
-				}
-				release, ok, err = v.ref.DetectVersion(repo, vs)
+		default:
+			vs := version.String()
+			if !strings.HasPrefix(vs, "v") {
+				vs = "v" + vs
+			}
+			release, ok, err = v.ref.DetectVersion(repo, vs)
 		}
 
 		if !ok {

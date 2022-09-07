@@ -14,7 +14,6 @@ import (
 	"time"
 )
 
-
 // type SelfUpdateGetter interface {
 // }
 
@@ -25,9 +24,8 @@ type SelfUpdateArgs struct {
 	sourceRepo *string
 	binaryRepo *string
 
-	logging    *bool
+	logging *bool
 }
-
 
 //type MyValidator struct {
 //}
@@ -43,7 +41,6 @@ type SelfUpdateArgs struct {
 //	return ".gz"
 //}
 
-
 //goland:noinspection ALL
 type Version struct {
 	ExecName       string   `json:"cmd_name" mapstructure:"cmd_name"`
@@ -51,35 +48,34 @@ type Version struct {
 	ExecSourceRepo UrlValue `json:"cmd_source_repo" mapstructure:"cmd_source_repo"`
 	ExecBinaryRepo UrlValue `json:"cmd_binary_repo" mapstructure:"cmd_binary_repo"`
 
-	Cmd            string		`json:"cmd" mapstructure:"cmd"`
-	CmdDir         string	    `json:"cmd_dir" mapstructure:"cmd_dir"`
-	CmdFile        string	    `json:"cmd_file" mapstructure:"cmd_file"`
+	Cmd     string `json:"cmd" mapstructure:"cmd"`
+	CmdDir  string `json:"cmd_dir" mapstructure:"cmd_dir"`
+	CmdFile string `json:"cmd_file" mapstructure:"cmd_file"`
 
-	WorkingDir     Path			`json:"working_dir" mapstructure:"working_dir"`
-	BaseDir        Path			`json:"base_dir" mapstructure:"base_dir"`
-	BinDir         Path			`json:"bin_dir" mapstructure:"bin_dir"`
-	ConfigDir      Path			`json:"config_dir" mapstructure:"config_dir"`
-	CacheDir       Path			`json:"cache_dir" mapstructure:"cache_dir"`
-	TempDir        Path			`json:"temp_dir" mapstructure:"temp_dir"`
+	WorkingDir Path `json:"working_dir" mapstructure:"working_dir"`
+	BaseDir    Path `json:"base_dir" mapstructure:"base_dir"`
+	BinDir     Path `json:"bin_dir" mapstructure:"bin_dir"`
+	ConfigDir  Path `json:"config_dir" mapstructure:"config_dir"`
+	CacheDir   Path `json:"cache_dir" mapstructure:"cache_dir"`
+	TempDir    Path `json:"temp_dir" mapstructure:"temp_dir"`
 
-	FullArgs       ExecArgs		`json:"full_args" mapstructure:"full_args"`
-	Args           ExecArgs		`json:"args" mapstructure:"args"`
-	ArgFiles       ExecArgs		`json:"arg_files" mapstructure:"arg_files"`
+	FullArgs ExecArgs `json:"full_args" mapstructure:"full_args"`
+	Args     ExecArgs `json:"args" mapstructure:"args"`
+	ArgFiles ExecArgs `json:"arg_files" mapstructure:"arg_files"`
 
-	Env            ExecEnv		`json:"env" mapstructure:"env"`
-	EnvMap         Environment	`json:"env_map" mapstructure:"env_map"`
+	Env    ExecEnv     `json:"env" mapstructure:"env"`
+	EnvMap Environment `json:"env_map" mapstructure:"env_map"`
 
-	TimeStamp      time.Time	`json:"timestamp" mapstructure:"timestamp"`
-	Timeout        time.Duration `json:"timeout" mapstructure:"timeout"`
+	TimeStamp time.Time     `json:"timestamp" mapstructure:"timestamp"`
+	Timeout   time.Duration `json:"timeout" mapstructure:"timeout"`
 
-	GoRuntime      GoRuntime	`json:"go_runtime" mapstructure:"go_runtime"`
+	GoRuntime GoRuntime `json:"go_runtime" mapstructure:"go_runtime"`
 
-	User           User			`json:"user" mapstructure:"user"`
+	User User `json:"user" mapstructure:"user"`
 
-	Debug          bool			`json:"debug" mapstructure:"debug"`
-	Verbose        bool			`json:"verbose" mapstructure:"verbose"`
-	State          State	    `json:"state" mapstructure:"state"`
-
+	Debug   bool  `json:"debug" mapstructure:"debug"`
+	Verbose bool  `json:"verbose" mapstructure:"verbose"`
+	State   State `json:"state" mapstructure:"state"`
 
 	useRepo       *UrlValue
 	OldVersion    *VersionValue
@@ -87,18 +83,17 @@ type Version struct {
 	RuntimeBinary string
 	AutoExec      bool
 
-	logging    *FlagValue
-	config     *selfupdate.Config
-	ref        *selfupdate.Updater
+	logging *FlagValue
+	config  *selfupdate.Config
+	ref     *selfupdate.Updater
 
-	cmd        *cobra.Command
-	SelfCmd    *cobra.Command
+	cmd     *cobra.Command
+	SelfCmd *cobra.Command
 }
 
 func (v *Version) GetCmd() *cobra.Command {
 	return v.SelfCmd
 }
-
 
 func (v *Version) IsValid() bool {
 	var ok bool
@@ -232,22 +227,20 @@ func (v *Version) IsOsx() bool {
 	return ok
 }
 
-
 type ExecEnv []string
 type Environment map[string]string
 type GoRuntime struct {
-	Os string
-	Arch string
-	Root string
-	Version string
+	Os       string
+	Arch     string
+	Root     string
+	Version  string
 	Compiler string
-	NumCpus int
+	NumCpus  int
 }
 
 type User struct {
 	*user.User
 }
-
 
 // Instead of creating every time, let's cache the initial result in a global variable.
 var globalRuntime *Version
@@ -267,9 +260,9 @@ func New(binary string, version string, debugFlag bool) *Version {
 			ExecName:    binary,
 			ExecVersion: version,
 
-			Cmd:        "",
-			CmdDir:     "",
-			CmdFile:    "",
+			Cmd:     "",
+			CmdDir:  "",
+			CmdFile: "",
 
 			WorkingDir: ".",
 			BaseDir:    ".",
@@ -278,14 +271,14 @@ func New(binary string, version string, debugFlag bool) *Version {
 			CacheDir:   ".",
 			TempDir:    ".",
 
-			FullArgs:   os.Args,
-			Args:       os.Args[1:],
-			ArgFiles:   []string{},
+			FullArgs: os.Args,
+			Args:     os.Args[1:],
+			ArgFiles: []string{},
 
-			Env:        os.Environ(),
-			EnvMap:     make(Environment),
+			Env:    os.Environ(),
+			EnvMap: make(Environment),
 
-			TimeStamp:  time.Now(),
+			TimeStamp: time.Now(),
 
 			GoRuntime: GoRuntime{
 				Os:       runtime.GOOS,
@@ -296,9 +289,9 @@ func New(binary string, version string, debugFlag bool) *Version {
 				NumCpus:  runtime.NumCPU(),
 			},
 
-			Debug:      debugFlag,
-			Verbose:    false,
-			State:      State{},
+			Debug:   debugFlag,
+			Verbose: false,
+			State:   State{},
 		}
 
 		for _, item := range os.Environ() {
@@ -347,13 +340,13 @@ func New(binary string, version string, debugFlag bool) *Version {
 		//if runtime.GOOS == "windows" {
 		//	ret.BaseDir = ""
 		//} else {
-			ret.BaseDir.Set(ret.User.HomeDir, "." + ret.ExecName)
+		ret.BaseDir.Set(ret.User.HomeDir, "."+ret.ExecName)
 		//}
 
 		//if runtime.GOOS == "windows" {
 		//	ret.BinDir = ""
 		//} else {
-			ret.BinDir = ret.BaseDir.Join("bin")
+		ret.BinDir = ret.BaseDir.Join("bin")
 		//}
 
 		p, err = os.UserConfigDir()
@@ -391,18 +384,17 @@ func New(binary string, version string, debugFlag bool) *Version {
 			ret.TempDir = ret.BaseDir.Join("tmp")
 		}
 
-
 		// ******************************************************************************** //
 		ret.TargetBinary = ret.Cmd
 		ret.RuntimeBinary = ResolveFile(ret.Cmd)
-		ret.AutoExec =     false
+		ret.AutoExec = false
 
-		ret.logging =    toBoolValue(ret.Debug)
-		ret.config =     &selfupdate.Config {
+		ret.logging = toBoolValue(ret.Debug)
+		ret.config = &selfupdate.Config{
 			APIToken:            "",
 			EnterpriseBaseURL:   "",
 			EnterpriseUploadURL: "",
-			Validator:           nil, 	// &MyValidator{},
+			Validator:           nil, // &MyValidator{},
 			Filters:             []string{},
 		}
 

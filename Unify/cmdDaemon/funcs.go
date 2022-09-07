@@ -13,7 +13,6 @@ import (
 	"time"
 )
 
-
 func (d *Daemon) ReadPid() int {
 	ret := -1
 
@@ -59,7 +58,7 @@ func (d *Daemon) WritePid(pid int) error {
 		if d.Error != nil {
 			break
 		}
-		//goland:noinspection GoUnhandledErrorResult,GoDeferInLoop
+		//goland:noinspection GoDeferInLoop,GoUnhandledErrorResult
 		defer file.Close()
 
 		_, d.Error = file.Write([]byte(fmt.Sprintf("%d", pid)))
@@ -76,16 +75,15 @@ func DaemonizeClose(cntxt *daemon.Context) error {
 	return cntxt.Release()
 }
 
-
 func worker() {
 	fmt.Println("DEBUG")
 LOOP:
 	for {
 		time.Sleep(time.Second) // this is work to be done by worker.
 		select {
-			case <-stop:
-				break LOOP
-			default:
+		case <-stop:
+			break LOOP
+		default:
 		}
 	}
 	done <- struct{}{}

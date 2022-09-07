@@ -6,13 +6,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
-
 type Daemon struct {
 	Error error
 	cntxt *daemon.Context
 
-	cmd        *cobra.Command
-	SelfCmd    *cobra.Command
+	cmd     *cobra.Command
+	SelfCmd *cobra.Command
 }
 
 func New() *Daemon {
@@ -23,7 +22,7 @@ func New() *Daemon {
 			Error: nil,
 			cntxt: &daemon.Context{},
 
-			cmd: nil,
+			cmd:     nil,
 			SelfCmd: nil,
 		}
 	}

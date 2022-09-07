@@ -41,6 +41,8 @@ func Execute() error {
 				BinaryRepo:    defaults.BinaryRepo,
 				EnvPrefix:     defaults.EnvPrefix,
 				HelpTemplate:  defaults.HelpTemplate,
+				ReadMe:        defaults.Readme,
+				Examples:      defaults.Examples,
 			},
 			Unify.Flags {},
 		)

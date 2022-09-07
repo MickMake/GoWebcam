@@ -5,7 +5,6 @@ import (
 	"strings"
 )
 
-
 func (v *Version) SetArgs(a ...string) {
 	v.Args.Set(a...)
 	//var err error
@@ -83,7 +82,6 @@ func (v *Version) AddFullArgs(a ...string) {
 func (v *Version) GetFullArgs() []string {
 	return v.FullArgs.GetAll()
 }
-
 
 type ExecArgs []string
 

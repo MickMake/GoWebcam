@@ -4,7 +4,9 @@ import (
 	"GoWebcam/Unify/Only"
 	"GoWebcam/Unify/cmdLog"
 	"bufio"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
@@ -14,7 +16,6 @@ import (
 	"strconv"
 	"strings"
 )
-
 
 func (v *Version) SetCmd(a ...string) error {
 	var err error
@@ -185,7 +186,6 @@ func (v *Version) IsRunningAsFile() bool {
 func (v *Version) IsRunningAsLink() bool {
 	return !v.IsRunningAsFile()
 }
-
 
 type Path string
 
@@ -368,7 +368,7 @@ func (p *Path) GrepFile(search string) (int, error) {
 			err = nil
 			break
 		}
-		//goland:noinspection ALL
+		//goland:noinspection GoDeferInLoop,GoUnhandledErrorResult
 		defer f.Close()
 
 		// Splits on newlines by default.
@@ -393,8 +393,163 @@ func (p *Path) GrepFile(search string) (int, error) {
 }
 
 
+// FileRead Retrieves data from a local file.
+func (p *Path) FileRead(ref interface{}) error {
+	var err error
+	for range Only.Once {
+		if *p == "" {
+			err = errors.New("empty file")
+			break
+		}
+
+		var f *os.File
+		f, err = os.Open(string(*p))
+		if err != nil {
+			if os.IsNotExist(err) {
+				err = nil
+			}
+			break
+		}
+
+		//goland:noinspection GoUnhandledErrorResult,GoDeferInLoop
+		defer f.Close()
+
+		err = json.NewDecoder(f).Decode(&ref)
+	}
+
+	// for range Only.Once {
+	//	fn := ep.GetFilename()
+	//	if err != nil {
+	//		break
+	//	}
+	//
+	//	ret, err = os.FileRead(fn)
+	//	if err != nil {
+	//		break
+	//	}
+	// }
+
+	return err
+}
+
+// FileWrite Saves data to a file path.
+func (p *Path) FileWrite(ref interface{}, perm os.FileMode) error {
+	var err error
+	for range Only.Once {
+		if *p == "" {
+			err = errors.New("empty file")
+			break
+		}
+
+		var f *os.File
+		f, err = os.OpenFile(string(*p), os.O_RDWR|os.O_CREATE|os.O_TRUNC, perm)
+		if err != nil {
+			err = errors.New(fmt.Sprintf("Unable to write to file %s - %v", string(*p), err))
+			break
+		}
+
+		//goland:noinspection GoUnhandledErrorResult,GoDeferInLoop
+		defer f.Close()
+		err = json.NewEncoder(f).Encode(ref)
+
+		// fn := ep.GetFilename()
+		// if err != nil {
+		//	break
+		// }
+		//
+		// err = os.FileWrite(fn, data, perm)
+		// if err != nil {
+		//	break
+		// }
+	}
+
+	return err
+}
+
+// PlainFileRead Retrieves data from a local file.
+func (p *Path) PlainFileRead() ([]byte, error) {
+	var data []byte
+	var err error
+	for range Only.Once {
+		if *p == "" {
+			err = errors.New("empty file")
+			break
+		}
+
+		var f *os.File
+		f, err = os.Open(string(*p))
+		if err != nil {
+			if os.IsNotExist(err) {
+				err = nil
+			}
+			break
+		}
+
+		//goland:noinspection GoUnhandledErrorResult,GoDeferInLoop
+		defer f.Close()
+
+		data, err = ioutil.ReadAll(f)
+	}
+
+	return data, err
+}
+
+// PlainFileWrite Saves data to a file path.
+func (p *Path) PlainFileWrite(data []byte, perm os.FileMode) error {
+	var err error
+	for range Only.Once {
+		if *p == "" {
+			err = errors.New("empty file")
+			break
+		}
+
+		var f *os.File
+		f, err = os.OpenFile(string(*p), os.O_RDWR|os.O_CREATE|os.O_TRUNC, perm)
+		if err != nil {
+			err = errors.New(fmt.Sprintf("Unable to write to file %s - %v", string(*p), err))
+			break
+		}
+		//goland:noinspection GoUnhandledErrorResult,GoDeferInLoop
+		defer f.Close()
+
+		_, err = f.Write(data)
+	}
+
+	return err
+}
+
+// FileRemove Removes a file path.
+func (p *Path) FileRemove() error {
+	var err error
+	for range Only.Once {
+		if *p == "" {
+			err = errors.New("empty file")
+			break
+		}
+
+		var f os.FileInfo
+		f, err = os.Stat(string(*p))
+		if os.IsNotExist(err) {
+			err = nil
+			break
+		}
+		if err != nil {
+			break
+		}
+		if f.IsDir() {
+			err = errors.New("file is a directory")
+			break
+		}
+
+		err = os.Remove(string(*p))
+	}
+
+	return err
+}
+
+
 //goland:noinspection SpellCheckingInspection
-var RcFiles = []Path {
+var RcFiles = []Path{
 	// BASH
 	"/etc/profile",
 	"/etc/bashrc",
@@ -441,26 +596,25 @@ func GrepFiles(search string, fps ...Path) ([]string, error) {
 		var line int
 		line, err = p.GrepFile(search)
 		if line > 0 {
-			files = append(files, p.String() + " line:" + strconv.Itoa(line))
+			files = append(files, p.String()+" line:"+strconv.Itoa(line))
 		}
 	}
 
 	return files, err
 }
 
-
 type TargetFile struct {
-	IsMissing bool
+	IsMissing       bool
 	IsRuntimeBinary bool
-	FileMatches bool
-	IsSymlink bool
-	LinkTo string
-	LinkEval string
-	LinkToRuntime bool
-	CopyOfRuntime bool
+	FileMatches     bool
+	IsSymlink       bool
+	LinkTo          string
+	LinkEval        string
+	LinkToRuntime   bool
+	CopyOfRuntime   bool
 
 	Error error
-	Info os.FileInfo
+	Info  os.FileInfo
 }
 
 func FileStat(runtimeBinary string, targetBinary string) *TargetFile {

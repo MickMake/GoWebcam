@@ -13,7 +13,6 @@ import (
 	"strings"
 )
 
-
 func printVersionSummary(release *selfupdate.Release) string {
 	var ret string
 
@@ -78,17 +77,17 @@ func addUrlPrefix(url ...string) string {
 	u := strings.Join(url, "/")
 
 	switch {
-		case strings.HasPrefix(u, "/"):
-			u = "https://" + DefaultRepoServer + u
+	case strings.HasPrefix(u, "/"):
+		u = "https://" + DefaultRepoServer + u
 
-		case strings.HasPrefix(u, "github.com"):
-			u = "https://" + u
+	case strings.HasPrefix(u, "github.com"):
+		u = "https://" + u
 
-		case strings.HasPrefix(u, "http"):
-			// Leave url as is.
+	case strings.HasPrefix(u, "http"):
+		// Leave url as is.
 
-		default:
-			u = "https://" + DefaultRepoServer + "/" + u
+	default:
+		u = "https://" + DefaultRepoServer + "/" + u
 	}
 	return u
 }

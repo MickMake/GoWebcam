@@ -1,9 +1,21 @@
 package defaults
 
+import _ "embed"
+
+// Need to execute `go generate -v -x defaults/const.go` OR `go generate -v -x ./...`
+//go:generate cp ../README.md README.md
+//go:generate cp ../EXAMPLES.md EXAMPLES.md
+
+//go:embed README.md
+var Readme string
+
+//go:embed EXAMPLES.md
+var Examples string
+
 const (
 	Description     = "Golang Webcam fetcher"
 	BinaryName      = "GoWebcam"
-	BinaryVersion   = "1.0.5"
+	BinaryVersion   = "1.0.6"
 	SourceRepo      = "github.com/MickMake/" + BinaryName
 	BinaryRepo      = "github.com/MickMake/" + BinaryName
 

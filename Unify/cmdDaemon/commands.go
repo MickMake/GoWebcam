@@ -13,8 +13,8 @@ import (
 	"syscall"
 )
 
-
 const Group = "Daemon"
+
 func (d *Daemon) AttachCommands(cmd *cobra.Command) *cobra.Command {
 	for range Only.Once {
 		if cmd == nil {
@@ -25,13 +25,13 @@ func (d *Daemon) AttachCommands(cmd *cobra.Command) *cobra.Command {
 		// ******************************************************************************** //
 		d.SelfCmd = &cobra.Command{
 			Use:                   CmdDaemon,
-			Aliases:               []string{""},
+			Aliases:               []string{},
 			Short:                 fmt.Sprintf("Daemonize commands."),
 			Long:                  fmt.Sprintf("Daemonize commands."),
 			DisableFlagParsing:    false,
 			DisableFlagsInUseLine: false,
 			PreRunE:               d.InitArgs,
-			RunE:				   d.CmdDaemon,
+			RunE:                  d.CmdDaemon,
 			Args:                  cobra.MinimumNArgs(1),
 		}
 		cmd.AddCommand(d.SelfCmd)
@@ -117,19 +117,18 @@ func (d *Daemon) AttachCommands(cmd *cobra.Command) *cobra.Command {
 	return d.SelfCmd
 }
 
-
 func (d *Daemon) InitArgs(_ *cobra.Command, _ []string) error {
 	var err error
 	for range Only.Once {
 		// @TODO - Sort out this Daemon mess.
-		d.cntxt = &daemon.Context {
+		d.cntxt = &daemon.Context{
 			PidFileName: d.cmd.Name() + ".pid",
 			PidFilePerm: 0644,
 			LogFileName: d.cmd.Name() + ".log",
 			LogFilePerm: 0640,
 			WorkDir:     "./",
 			Umask:       027,
-			Args:        []string{ fmt.Sprintf("[%s]", d.cmd.Name()) },
+			Args:        []string{fmt.Sprintf("[%s]", d.cmd.Name())},
 			// 	Chroot:      "",
 			// 	Env:         nil,
 			// 	Credential:  nil,
@@ -157,7 +156,7 @@ func (d *Daemon) CmdDaemonExec(fn DaemonFunc, _ *cobra.Command, args []string) e
 			break
 		}
 
-		d.cntxt.Args = []string{ fmt.Sprintf("[%s]", d.cmd.Name()) }
+		d.cntxt.Args = []string{fmt.Sprintf("[%s]", d.cmd.Name())}
 		d.cntxt.Args = append(d.cntxt.Args, args...)
 
 		daemon.SetSigHandler(termHandler, syscall.SIGQUIT)
@@ -187,7 +186,7 @@ func (d *Daemon) CmdDaemonExec(fn DaemonFunc, _ *cobra.Command, args []string) e
 			}
 			break
 		}
-		//goland:noinspection GoUnhandledErrorResult,GoDeferInLoop
+		//goland:noinspection GoDeferInLoop,GoUnhandledErrorResult
 		defer d.cntxt.Release()
 
 		// @TODO - Never seems to get to here!
@@ -301,44 +300,43 @@ func (d *Daemon) CmdDaemonList() error {
 
 		pid := d.ReadPid()
 		switch {
-			// If no discovered PID and no PID file.
-			case (child == nil) && (pid == -1):
-				fmt.Println("No daemon running.")
+		// If no discovered PID and no PID file.
+		case (child == nil) && (pid == -1):
+			fmt.Println("No daemon running.")
 
-			// If no discovered PID and a PID file.
-			case (child == nil) && (pid != -1):
-				fmt.Println("Removing stale PID file.")
-				d.Error = os.Remove(d.cntxt.PidFileName)
-				if d.Error != nil {
-					break
-				}
+		// If no discovered PID and a PID file.
+		case (child == nil) && (pid != -1):
+			fmt.Println("Removing stale PID file.")
+			d.Error = os.Remove(d.cntxt.PidFileName)
+			if d.Error != nil {
+				break
+			}
 
-			// If discovered PID and no PID file.
-			case (child != nil) && (pid == -1):
-				fmt.Printf("Daemon running. PID: %d\n", child.Pid)
-				fmt.Println("Creating PID file.")
-				d.Error = d.WritePid(child.Pid)
-				if d.Error != nil {
-					break
-				}
+		// If discovered PID and no PID file.
+		case (child != nil) && (pid == -1):
+			fmt.Printf("Daemon running. PID: %d\n", child.Pid)
+			fmt.Println("Creating PID file.")
+			d.Error = d.WritePid(child.Pid)
+			if d.Error != nil {
+				break
+			}
 
-			// If discovered PID and a PID file.
-			case (child != nil) && (pid != -1):
-				fmt.Printf("Daemon running. PID: %d\n", child.Pid)
-				if child.Pid == pid {
-					break
-				}
-				fmt.Printf("Creating PID file. (Mismatch: %d != %d)\n", child.Pid, pid)
-				d.Error = d.WritePid(child.Pid)
-				if d.Error != nil {
-					break
-				}
+		// If discovered PID and a PID file.
+		case (child != nil) && (pid != -1):
+			fmt.Printf("Daemon running. PID: %d\n", child.Pid)
+			if child.Pid == pid {
+				break
+			}
+			fmt.Printf("Creating PID file. (Mismatch: %d != %d)\n", child.Pid, pid)
+			d.Error = d.WritePid(child.Pid)
+			if d.Error != nil {
+				break
+			}
 		}
 	}
 
 	return d.Error
 }
-
 
 type DaemonFunc func(cmd *cobra.Command, args []string) error
 

@@ -3,13 +3,18 @@ package cmdConfig
 import (
 	"GoWebcam/Unify/Only"
 	"GoWebcam/Unify/cmdHelp"
+	"bytes"
 	"fmt"
+	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 	"os"
+	"strings"
 )
 
 
 const Group = "Config"
+
 func (c *Config) AttachCommands(cmd *cobra.Command) *cobra.Command {
 	for range Only.Once {
 		if cmd == nil {
@@ -66,7 +71,6 @@ func (c *Config) AttachCommands(cmd *cobra.Command) *cobra.Command {
 	return c.SelfCmd
 }
 
-
 func (c *Config) InitArgs(_ *cobra.Command, _ []string) error {
 	var err error
 	for range Only.Once {
@@ -74,7 +78,6 @@ func (c *Config) InitArgs(_ *cobra.Command, _ []string) error {
 	}
 	return err
 }
-
 
 func (c *Config) CmdConfig(cmd *cobra.Command, args []string) error {
 	for range Only.Once {
@@ -98,9 +101,14 @@ func (c *Config) CmdWrite(_ *cobra.Command, args []string) error {
 			}
 		}
 
+		c.Error = c.UpdateFlags()
+		if c.Error != nil {
+			break
+		}
+
 		_, _ = fmt.Fprintf(os.Stderr, "Using config file '%s'\n", c.viper.ConfigFileUsed())
 		fmt.Println("New config:")
-		cmdHelp.PrintConfig(c.cmd, c.EnvPrefix)
+		fmt.Print(c.PrintConfig())
 
 		c.Error = c.Write()
 		if c.Error != nil {
@@ -109,6 +117,66 @@ func (c *Config) CmdWrite(_ *cobra.Command, args []string) error {
 	}
 
 	return c.Error
+}
+
+func (c *Config) PrintConfig() string {
+	var ret string
+	for range Only.Once {
+		buf := new(bytes.Buffer)
+		table := tablewriter.NewWriter(buf)
+		table.SetHeader([]string{"Flag", "Short flag", "Environment", "Description", "Value (* = default)"})
+		table.SetBorder(true)
+
+		c.cmd.PersistentFlags().SortFlags = false
+		c.cmd.Flags().SortFlags = false
+		c.cmd.Flags().VisitAll(func(flag *pflag.Flag) {
+			if flag.Hidden {
+				return
+			}
+
+			sh := ""
+			if flag.Shorthand != "" {
+				sh = "-" + flag.Shorthand
+			}
+
+			var value string
+			foo := flag.Value.Type()
+			switch foo {
+				case "stringArray":
+					va, _ := c.cmd.Flags().GetStringArray(flag.Name)
+					value = va[0]
+				default:
+					value = flag.Value.String()
+			}
+			if value == flag.DefValue {
+				value += " *"
+			}
+			table.Append([]string{
+				"--" + flag.Name,
+				sh,
+				PrintFlagEnv(c.EnvPrefix, flag.Name),
+				flag.Usage,
+				value,
+				// flag.Value.String(),
+				// flag.DefValue,
+			})
+		})
+
+		table.Render()
+		ret = buf.String()
+	}
+	return ret
+}
+
+func PrintFlagEnv(prefix string, flag string) string {
+	fenv := strings.ReplaceAll(flag, "-", "_")
+	fenv = strings.ToUpper(fenv)
+
+	// ret := fmt.Sprintf("--%s\t%s_%s\n", flag, EnvPrefix, fenv)
+	// ret := fmt.Sprintf("%s_%s", defaults.EnvPrefix, fenv)
+	// ret := fmt.Sprintf("%s_%s", cmdVersion.GetEnvPrefix(), fenv)
+	ret := fmt.Sprintf("%s_%s", prefix, fenv)
+	return ret
 }
 
 func (c *Config) CmdRead(_ *cobra.Command, args []string) error {
@@ -121,6 +189,11 @@ func (c *Config) CmdRead(_ *cobra.Command, args []string) error {
 			if c.Error != nil {
 				break
 			}
+		}
+
+		c.Error = c.UpdateFlags()
+		if c.Error != nil {
+			break
 		}
 
 		_, _ = fmt.Fprintf(os.Stderr, "Using config file '%s'\n", c.viper.ConfigFileUsed())

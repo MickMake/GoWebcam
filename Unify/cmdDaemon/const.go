@@ -1,19 +1,18 @@
 package cmdDaemon
 
-
 const (
 	// pidFile = defaults.BinaryName + ".pid"
 
-	CmdDaemon     = "daemon"
-	CmdDaemonExec = "exec"
-	CmdDaemonStop = "kill"
+	CmdDaemon       = "daemon"
+	CmdDaemonExec   = "exec"
+	CmdDaemonStop   = "kill"
 	CmdDaemonReload = "reload"
-	CmdDaemonList = "list"
+	CmdDaemonList   = "list"
 )
 
 var (
-	AliasesDaemonExec = []string{"run"}
-	AliasesDaemonStop = []string{"stop"}
+	AliasesDaemonExec   = []string{"run"}
+	AliasesDaemonStop   = []string{"stop"}
 	AliasesDaemonReload = []string{"hup"}
-	AliasesDaemonList = []string{"ls"}
+	AliasesDaemonList   = []string{"ls"}
 )

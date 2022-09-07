@@ -8,13 +8,11 @@ import (
 	"os"
 )
 
-
 type State struct {
-	error error
+	error   error
 	warning error
-	ok error
+	ok      error
 }
-
 
 func (s *State) IsOk() bool {
 	if s.ok == nil {
@@ -63,7 +61,6 @@ func (s *State) GetWarning() error {
 	return s.warning
 }
 
-
 func (s *State) SetOk(format string, args ...interface{}) {
 	s.error = nil
 	s.warning = nil
@@ -85,7 +82,6 @@ func (s *State) GetState() error {
 	return s.error
 }
 
-
 // ******************************************************************************** //
 
 type Ux struct {
@@ -97,7 +93,7 @@ type typeColours struct {
 	EnableColours bool
 	// TemplateRef   *template.Template
 	// TemplateFuncs template.FuncMap
-	Prefix        string
+	Prefix string
 }
 
 var colours typeColours
@@ -129,7 +125,6 @@ func Open(name string, enable bool) (*typeColours, error) {
 
 	return &colours, err
 }
-
 
 func Close() {
 	if colours.Defined {
@@ -253,7 +248,6 @@ func (u *Ux) PrintflnMagenta(format string, args ...interface{}) {
 	fmt.Printf(inline + "\n")
 }
 
-
 func SprintfWhite(format string, args ...interface{}) string {
 	inline := fmt.Sprintf(format, args...)
 	if colours.EnableColours {
@@ -310,7 +304,6 @@ func SprintfMagenta(format string, args ...interface{}) string {
 	return inline
 }
 
-
 func Sprintf(format string, args ...interface{}) string {
 	inline := fmt.Sprintf(format, args...)
 	if colours.EnableColours {
@@ -321,7 +314,6 @@ func Sprintf(format string, args ...interface{}) string {
 func (u *Ux) Printf(format string, args ...interface{}) {
 	_, _ = fmt.Fprintf(os.Stdout, Sprintf(format, args...))
 }
-
 
 func SprintfNormal(format string, args ...interface{}) string {
 	inline := fmt.Sprintf(format, args...)
@@ -336,9 +328,8 @@ func (u *Ux) PrintfNormal(format string, args ...interface{}) {
 }
 
 func (u *Ux) PrintflnNormal(format string, args ...interface{}) {
-	_, _ = fmt.Fprintf(os.Stdout, SprintfNormal(format + "\n", args...))
+	_, _ = fmt.Fprintf(os.Stdout, SprintfNormal(format+"\n", args...))
 }
-
 
 func SprintfInfo(format string, args ...interface{}) string {
 	inline := fmt.Sprintf(format, args...)
@@ -350,9 +341,8 @@ func (u *Ux) PrintfInfo(format string, args ...interface{}) {
 }
 
 func (u *Ux) PrintflnInfo(format string, args ...interface{}) {
-	_, _ = fmt.Fprintf(os.Stdout, SprintfInfo(format + "\n", args...))
+	_, _ = fmt.Fprintf(os.Stdout, SprintfInfo(format+"\n", args...))
 }
-
 
 func SprintfOk(format string, args ...interface{}) string {
 	inline := fmt.Sprintf(format, args...)
@@ -364,7 +354,7 @@ func (u *Ux) PrintfOk(format string, args ...interface{}) {
 }
 
 func (u *Ux) PrintflnOk(format string, args ...interface{}) {
-	_, _ = fmt.Fprintf(os.Stdout, SprintfOk(format + "\n", args...))
+	_, _ = fmt.Fprintf(os.Stdout, SprintfOk(format+"\n", args...))
 }
 
 func SprintfDebug(format string, args ...interface{}) string {
@@ -372,9 +362,8 @@ func SprintfDebug(format string, args ...interface{}) string {
 }
 
 func (u *Ux) PrintfDebug(format string, args ...interface{}) {
-	_, _ = fmt.Fprintf(os.Stderr, fmt.Sprintf(format + "\n", args...))
+	_, _ = fmt.Fprintf(os.Stderr, fmt.Sprintf(format+"\n", args...))
 }
-
 
 func SprintfWarning(format string, args ...interface{}) string {
 	inline := fmt.Sprintf(format, args...)
@@ -386,9 +375,8 @@ func (u *Ux) PrintfWarning(format string, args ...interface{}) {
 }
 
 func (u *Ux) PrintflnWarning(format string, args ...interface{}) {
-	_, _ = fmt.Fprintf(os.Stdout, SprintfWarning(format + "\n", args...))
+	_, _ = fmt.Fprintf(os.Stdout, SprintfWarning(format+"\n", args...))
 }
-
 
 func SprintfError(format string, args ...interface{}) string {
 	inline := fmt.Sprintf(format, args...)
@@ -400,7 +388,7 @@ func (u *Ux) PrintfError(format string, args ...interface{}) {
 }
 
 func (u *Ux) PrintflnError(format string, args ...interface{}) {
-	_, _ = fmt.Fprintf(os.Stderr, SprintfError(format + "\n", args...))
+	_, _ = fmt.Fprintf(os.Stderr, SprintfError(format+"\n", args...))
 }
 
 func SprintError(err error) string {

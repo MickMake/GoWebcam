@@ -9,7 +9,6 @@ import (
 	"strings"
 )
 
-
 type StringValue string
 type UrlValue struct {
 	*url.URL
@@ -28,7 +27,6 @@ type VersionValue struct {
 }
 
 type FlagValue bool
-
 
 // func ReflectStringValue(ref interface{}) *StringValue {
 // 	var ret *StringValue
@@ -74,7 +72,6 @@ type FlagValue bool
 // 	}
 // 	return ret
 // }
-
 
 func GetSemVer(v string) *VersionValue {
 	var sver VersionValue
@@ -299,35 +296,35 @@ func (v *UrlValue) Set(args ...string) error {
 
 		repoArgs := strings.Split(v.Path, "/")
 		switch len(repoArgs) {
-			case 0:
-				err = errors.New(fmt.Sprintf("Url path empty"))
-			case 1:
-				err = errors.New(fmt.Sprintf("Url path invalid"))
+		case 0:
+			err = errors.New(fmt.Sprintf("Url path empty"))
+		case 1:
+			err = errors.New(fmt.Sprintf("Url path invalid"))
 
-			case 2:
-				err = errors.New(fmt.Sprintf("Url missing repo name"))
+		case 2:
+			err = errors.New(fmt.Sprintf("Url missing repo name"))
 
-			case 3:
-				// Assume we have also been given a repo name.
-				v.Owner = repoArgs[1]
-				v.Name = repoArgs[2]
-				if v.Version.String() == "" {
-					v.Version = toVersionValue(LatestVersion)
-				}
+		case 3:
+			// Assume we have also been given a repo name.
+			v.Owner = repoArgs[1]
+			v.Name = repoArgs[2]
+			if v.Version.String() == "" {
+				v.Version = toVersionValue(LatestVersion)
+			}
 
 		default:
-				// Assume we have also been given a repo version.
-				v.Owner = repoArgs[1]
-				v.Name = repoArgs[2]
-				switch repoArgs[3] {
-					case "":
-						fallthrough
-					case LatestVersion:
-						//
+			// Assume we have also been given a repo version.
+			v.Owner = repoArgs[1]
+			v.Name = repoArgs[2]
+			switch repoArgs[3] {
+			case "":
+				fallthrough
+			case LatestVersion:
+				//
 
-					default:
-						v.Version = toVersionValue(dropVprefix(repoArgs[3]))
-				}
+			default:
+				v.Version = toVersionValue(dropVprefix(repoArgs[3]))
+			}
 		}
 
 	}

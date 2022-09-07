@@ -11,8 +11,8 @@ import (
 	"time"
 )
 
-
 const Group = "Cron"
+
 func (c *Cron) AttachCommands(cmd *cobra.Command) *cobra.Command {
 	for range Only.Once {
 		if cmd == nil {

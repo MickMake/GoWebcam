@@ -14,33 +14,32 @@ import (
 
 
 type Config struct {
-	Dir       string
-	File      string
-	EnvPrefix string
-	Error     error
+	BinaryName    string
+	BinaryVersion string
+	Dir           string
+	File          string
+	EnvPrefix     string
+	Error         error
 
-	// Flags     map[string]interface{}
-
-	viper     *viper.Viper
-	cmd       *cobra.Command
-	SelfCmd   *cobra.Command
+	viper   *viper.Viper
+	cmd     *cobra.Command
+	SelfCmd *cobra.Command
 }
 
-
-func New(name string) *Config {
+func New(name string, version string) *Config {
 	var ret *Config
 
 	for range Only.Once {
-		ret = &Config {
-			Dir: ".",
-			File: defaultConfigFile,
-			EnvPrefix: cmdVersion.GetEnvPrefix(),
-			Error: nil,
+		ret = &Config{
+			BinaryName:    name,
+			BinaryVersion: version,
+			Dir:           ".",
+			File:          defaultConfigFile,
+			EnvPrefix:     cmdVersion.GetEnvPrefix(),
+			Error:         nil,
 
-			// Flags: make(map[string]interface{}),
-
-			viper: viper.New(),
-			cmd: nil,
+			viper:   viper.New(),
+			cmd:     nil,
 			SelfCmd: nil,
 		}
 
@@ -76,6 +75,14 @@ func (c *Config) GetViper() *viper.Viper {
 
 func (c *Config) GetCmd() *cobra.Command {
 	return c.SelfCmd
+}
+
+func (c *Config) GetBinaryName() string {
+	return c.BinaryName
+}
+
+func (c *Config) GetBinaryVersion() string {
+	return c.BinaryVersion
 }
 
 func (c *Config) SetDir(path string) {
@@ -143,30 +150,6 @@ func (c *Config) Init(_ *cobra.Command) error {
 		if err != nil {
 			break
 		}
-
-		// c.viper.SetEnvPrefix(c.EnvPrefix)
-		// c.viper.AutomaticEnv() // read in environment variables that match
-		// c.cmd.Flags().VisitAll(func(f *pflag.Flag) {
-		// 	// Environment variables can't have dashes in them, so bind them to their equivalent
-		// 	// keys with underscores, e.g. --favorite-color to STING_FAVORITE_COLOR
-		// 	if strings.Contains(f.Name, "-") {
-		// 		envVarSuffix := strings.ToUpper(strings.ReplaceAll(f.Name, "-", "_"))
-		// 		err = c.viper.BindEnv(f.Name, fmt.Sprintf("%s_%s", c.EnvPrefix, envVarSuffix))
-		// 	}
-		//
-		// 	// fmt.Printf("FLAG: %s => %s\n", f.Name, f.Value.String())
-		// 	// Apply the viper config value to the flag when the flag is not set and viper has a value
-		// 	if !f.Changed && c.viper.IsSet(f.Name) {
-		// 		// val := c.viper.Get(f.Name)	// Doesn't handle time.Duration well.
-		// 		// val := c.cmd.Flag(f.Name).Value.String()
-		// 		val := f.Value.String()
-		// 		err = c.cmd.Flags().Set(f.Name, val)
-		// 	}
-		// })
-		//
-		// if err != nil {
-		// 	break
-		// }
 	}
 
 	return err
@@ -179,28 +162,30 @@ func (c *Config) UpdateFlags() error {
 	for range Only.Once {
 		c.viper.SetEnvPrefix(c.EnvPrefix)
 		c.viper.AutomaticEnv() // read in environment variables that match
-		//c.viper.BindFlagValues()
+		// c.viper.BindFlagValues(c.cmd.PersistentFlags())
 
-		c.cmd.Flags().VisitAll(func(f *pflag.Flag) {
+		c.cmd.PersistentFlags().VisitAll(func(f *pflag.Flag) {
 			// Environment variables can't have dashes in them, so bind them to their equivalent
-			// keys with underscores, e.g. --favorite-color to STING_FAVORITE_COLOR
+			// keys with underscores, e.g. --favorite-color to STRING_FAVOURITE_COLOR
 			if strings.Contains(f.Name, "-") {
 				envVarSuffix := strings.ToUpper(strings.ReplaceAll(f.Name, "-", "_"))
 				err = c.viper.BindEnv(f.Name, fmt.Sprintf("%s_%s", c.EnvPrefix, envVarSuffix))
 			}
 
-			// fmt.Printf("FLAG: %s => %s\n", f.Name, f.Value.String())
 			// Apply the viper config value to the flag when the flag is not set and viper has a value
 			if !f.Changed && c.viper.IsSet(f.Name) {
 				// val := c.viper.Get(f.Name)	// Doesn't handle time.Duration well.
 				// val := c.cmd.Flag(f.Name).Value.String()
 				// val := f.Value.String()
+
 				val := fmt.Sprintf("%v", c.viper.Get(f.Name))
 				err = c.cmd.Flags().Set(f.Name, val)
+			} else {
+				err = c.cmd.Flags().Set(f.Name, c.cmd.Flag(f.Name).Value.String())
 			}
 		})
 
-		// c.cmd.PersistentFlags().VisitAll(func(f *pflag.Flag) {
+		// c.cmd.Flags().VisitAll(func(f *pflag.Flag) {
 		// 	// Environment variables can't have dashes in them, so bind them to their equivalent
 		// 	// keys with underscores, e.g. --favorite-color to STING_FAVORITE_COLOR
 		// 	if strings.Contains(f.Name, "-") {
@@ -244,11 +229,11 @@ func (c *Config) Open() error {
 		if os.IsNotExist(c.Error) {
 			c.cmd.Flags().VisitAll(func(f *pflag.Flag) {
 				switch f.Value.Type() {
-					case "duration":
-						c.viper.SetDefault(f.Name, f.Value.String())
-					default:
-						c.viper.SetDefault(f.Name, f.Value)
-					}
+				case "duration":
+					c.viper.SetDefault(f.Name, f.Value.String())
+				default:
+					c.viper.SetDefault(f.Name, f.Value)
+				}
 			})
 
 			c.Error = c.viper.WriteConfig()
@@ -285,6 +270,9 @@ func (c *Config) Write() error {
 
 		c.cmd.Flags().VisitAll(func(f *pflag.Flag) {
 			switch f.Value.Type() {
+				case "stringArray":
+					va, _ := c.cmd.Flags().GetStringArray(f.Name)
+					c.viper.Set(f.Name, []string{va[0]})
 				case "duration":
 					c.viper.Set(f.Name, f.Value.String())
 				default:

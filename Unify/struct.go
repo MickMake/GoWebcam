@@ -14,18 +14,51 @@ import (
 	"GoWebcam/Unify/cmdCron"
 	"GoWebcam/Unify/cmdDaemon"
 	"GoWebcam/Unify/cmdHelp"
+	"GoWebcam/Unify/cmdShell"
 	"GoWebcam/Unify/cmdVersion"
 	"GoWebcam/defaults"
+	"errors"
 	"fmt"
 	cc "github.com/ivanpirog/coloredcobra"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"path/filepath"
 	"time"
 )
 
 
+type Unify struct {
+	Options  Options  `json:"options"`
+	Flags    Flags    `json:"flags"`
+	Commands Commands `json:"commands"`
+
+	Error error `json:"-"`
+}
+
+type Options struct {
+	Description   string `json:"description"`
+	BinaryName    string `json:"binary_name"`
+	BinaryVersion string `json:"binary_version"`
+	SourceRepo    string `json:"source_repo"`
+	BinaryRepo    string `json:"binary_repo"`
+	EnvPrefix     string `json:"env_prefix"`
+	HelpTemplate  string `json:"help_template"`
+	ReadMe        string `json:"readme"`
+	Examples      string `json:"examples"`
+}
+
+type Flags struct {
+	ConfigFile string        `json:"config_file"`
+	ConfigDir  string        `json:"config_dir"`
+	CacheDir   string        `json:"cache_dir"`
+	Quiet      bool          `json:"quiet"`
+	Debug      bool          `json:"debug"`
+	Timeout    time.Duration `json:"timeout"`
+}
+
+
 // New - Create new Unify instance.
-func New(options Options, flags Flags, ) *Unify {
+func New(options Options, flags Flags) *Unify {
 	var unify Unify
 
 	for range Only.Once {
@@ -55,11 +88,11 @@ func (u *Unify) InitCmds() error {
 
 	for range Only.Once {
 		// ******************************************************************************** //
-		u.Commands.CmdRoot = &cobra.Command {
+		u.Commands.CmdRoot = &cobra.Command{
 			Use:              u.Options.BinaryName,
 			Short:            fmt.Sprintf("%s - %s", u.Options.BinaryName, u.Options.Description),
 			Long:             fmt.Sprintf("%s - %s", u.Options.BinaryName, u.Options.Description),
-			Run:              CmdRoot,
+			RunE:             CmdRoot,
 			TraverseChildren: true,
 		}
 		u.Commands.CmdRoot.Example = cmdHelp.PrintExamples(u.Commands.CmdRoot, "")
@@ -72,12 +105,18 @@ func (u *Unify) InitCmds() error {
 
 		u.Commands.CmdCron = cmdCron.New()
 
-		u.Commands.CmdConfig = cmdConfig.New(u.Options.BinaryName)
+		u.Commands.CmdConfig = cmdConfig.New(u.Options.BinaryName, u.Options.BinaryVersion)
+
+		// u.Commands.CmdSystray = cmdSystray.New(u.Commands.CmdConfig, u.Commands.CmdVersion)
+
+		u.Commands.CmdShell = cmdShell.New(u.Options.BinaryName, u.Options.BinaryVersion, u.GetConfigDir())
 
 		u.Commands.CmdHelp = cmdHelp.New()
 		u.Commands.CmdHelp.SetCommand(u.Options.BinaryName)
 		u.Commands.CmdHelp.SetExtendedHelpTemplate(u.Options.HelpTemplate)
 		u.Commands.CmdHelp.SetEnvPrefix(u.Options.EnvPrefix)
+		u.Commands.CmdHelp.SetReadMe(u.Options.ReadMe)
+		u.Commands.CmdHelp.SetExamples(u.Options.Examples)
 	}
 
 	return u.Error
@@ -87,17 +126,6 @@ func (u *Unify) InitCmds() error {
 func (u *Unify) InitFlags() error {
 
 	for range Only.Once {
-		// SelfCmd.PersistentFlags().StringVarP(&Cmd.WebHost, flagWebHost, "", defaultHost, fmt.Sprintf("Web Host."))
-		// Cmd.CmdConfig.SetDefault(flagWebHost, defaultHost)
-		// SelfCmd.PersistentFlags().StringVarP(&Cmd.WebPort, flagWebPort, "", defaultPort, fmt.Sprintf("Web Port."))
-		// Cmd.CmdConfig.SetDefault(flagWebPort, defaultPort)
-		// SelfCmd.PersistentFlags().StringVarP(&Cmd.WebUsername, flagWebUsername, "u", defaultUsername, fmt.Sprintf("Web username."))
-		// Cmd.CmdConfig.SetDefault(flagWebUsername, defaultUsername)
-		// SelfCmd.PersistentFlags().StringVarP(&Cmd.WebPassword, flagWebPassword, "p", defaultPassword, fmt.Sprintf("Web password."))
-		// Cmd.CmdConfig.SetDefault(flagWebPassword, defaultPassword)
-		// SelfCmd.PersistentFlags().StringVarP(&Cmd.WebPrefix, flagWebPrefix, "", defaultPrefix, fmt.Sprintf("Web password."))
-		// Cmd.CmdConfig.SetDefault(flagWebPrefix, defaultPrefix)
-
 		u.Commands.CmdRoot.PersistentFlags().StringVar(&u.Flags.ConfigFile, cmdConfig.ConfigFileFlag, defaultConfig, fmt.Sprintf("%s: config file.", defaults.BinaryName))
 		// _ = rootCmd.PersistentFlags().MarkHidden(flagConfigFile)
 		u.Commands.CmdRoot.PersistentFlags().BoolVarP(&u.Flags.Debug, flagDebug, "", defaultDebug, fmt.Sprintf("%s: Debug mode.", defaults.BinaryName))
@@ -123,8 +151,10 @@ func (u *Unify) Execute() error {
 	for range Only.Once {
 		u.Commands.CmdVersion.AttachCommands(u.Commands.CmdRoot, true)
 		u.Commands.CmdDaemon.AttachCommands(u.Commands.CmdRoot)
+		// u.Commands.CmdSystray.AttachCommands(u.Commands.CmdRoot)
 		u.Commands.CmdCron.AttachCommands(u.Commands.CmdRoot)
 		u.Commands.CmdConfig.AttachCommands(u.Commands.CmdRoot)
+		u.Commands.CmdShell.AttachCommands(u.Commands.CmdRoot)
 		u.Commands.CmdHelp.AttachCommands(u.Commands.CmdRoot)
 		u.Commands.CmdConfig.SetDir(u.Flags.ConfigDir)
 		u.Commands.CmdConfig.SetFile(u.Flags.ConfigFile)
@@ -134,12 +164,12 @@ func (u *Unify) Execute() error {
 		}
 
 		cc.Init(&cc.Config{
-			RootCmd:       u.Commands.CmdRoot,
-			Headings:      cc.HiCyan + cc.Bold + cc.Underline,
-			Commands:      cc.HiYellow + cc.Bold,
-			Example:       cc.Italic,
-			ExecName:      cc.Bold,
-			Flags:         cc.Bold,
+			RootCmd:         u.Commands.CmdRoot,
+			Headings:        cc.HiCyan + cc.Bold + cc.Underline,
+			Commands:        cc.HiYellow + cc.Bold,
+			Example:         cc.Italic,
+			ExecName:        cc.Bold,
+			Flags:           cc.Bold,
 			NoExtraNewlines: true,
 			NoBottomNewline: true,
 			CmdShortDescr:   0,
@@ -156,11 +186,6 @@ func (u *Unify) Execute() error {
 	return err
 }
 
-// Execute -
-func (c *Commands) Execute() error {
-	return c.CmdRoot.Execute()
-}
-
 // GetCmd -
 func (u *Unify) GetCmd() *cobra.Command {
 	return u.Commands.CmdRoot
@@ -171,43 +196,31 @@ func (u *Unify) GetViper() *viper.Viper {
 	return u.Commands.CmdConfig.GetViper()
 }
 
-// CmdRoot -
-func CmdRoot(cmd *cobra.Command, args []string) {
-	for range Only.Once {
-		if len(args) == 0 {
-			_ = cmd.Help()
-			break
-		}
-	}
+// WriteConfig -
+func (u *Unify) WriteConfig() error {
+	return u.Commands.CmdConfig.Write()
 }
 
-
-type Unify struct {
-	Options  Options  `json:"options"`
-	Flags    Flags    `json:"flags"`
-	Commands Commands `json:"commands"`
-
-	Error    error    `json:"-"`
+// ReadConfig -
+func (u *Unify) ReadConfig() error {
+	return u.Commands.CmdConfig.Read()
 }
 
-type Options struct {
-	Description   string `json:"description"`
-	BinaryName    string `json:"binary_name"`
-	BinaryVersion string `json:"binary_version"`
-	SourceRepo    string `json:"source_repo"`
-	BinaryRepo    string `json:"binary_repo"`
-	EnvPrefix     string `json:"env_prefix"`
-	HelpTemplate  string `json:"help_template"`
+// GetConfigDir -
+func (u *Unify) GetConfigDir() string {
+	return u.Commands.CmdConfig.Dir
 }
 
-type Flags struct {
-	ConfigFile string        `json:"config_file"`
-	ConfigDir  string        `json:"config_dir"`
-	CacheDir   string        `json:"cache_dir"`
-	Quiet      bool          `json:"quiet"`
-	Debug      bool          `json:"debug"`
-	Timeout    time.Duration `json:"timeout"`
+// GetConfigFile -
+func (u *Unify) GetConfigFile() string {
+	return u.Commands.CmdConfig.File
 }
+
+// GetCacheDir -
+func (u *Unify) GetCacheDir() string {
+	return filepath.Join(u.Commands.CmdConfig.Dir, "cache")
+}
+
 
 type Commands struct {
 	CmdRoot    *cobra.Command
@@ -215,26 +228,23 @@ type Commands struct {
 	CmdDaemon  *cmdDaemon.Daemon
 	CmdCron    *cmdCron.Cron
 	CmdConfig  *cmdConfig.Config
+	// CmdSystray *cmdSystray.Config
 	CmdHelp    *cmdHelp.Help
+	CmdShell   *cmdShell.Shell
 }
 
-// func (c *Commands) IsValid() error {
-// 	for range Only.Once {
-// 		if !c.Valid {
-// 			c.Error = errors.New("args are not valid")
-// 			break
-// 		}
-// 	}
-//
-// 	return c.Error
-// }
-//
-// func (c *Commands) ProcessArgs(_ *cobra.Command, _ []string) error {
-// 	for range Only.Once {
-// 		// ca.Args = args
-//
-// 		c.Valid = true
-// 	}
-//
-// 	return c.Error
-// }
+// Execute -
+func (c *Commands) Execute() error {
+	return c.CmdRoot.Execute()
+}
+
+
+// CmdRoot -
+func CmdRoot(_ *cobra.Command, args []string) error {
+	var err error
+	for range Only.Once {
+		// _ = cmd.Help()
+		err = errors.New(fmt.Sprintf("Unknown command string: %v\n", args))
+	}
+	return err
+}

@@ -9,9 +9,9 @@ import (
 	"time"
 )
 
-
 var logFile string
 var logFileHandle *os.File
+
 func LogFileSet(lfn string) error {
 	var err error
 
@@ -77,11 +77,11 @@ func LogSprintfDate(format string, args ...interface{}) string {
 	return ret
 }
 
-
 type Log struct {
 	*os.File
 	err error
 }
+
 func (l *Log) Open(path ...string) error {
 	for range Only.Once {
 		fp := filepath.Join(path...)

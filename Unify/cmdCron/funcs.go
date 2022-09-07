@@ -69,6 +69,45 @@ func Exec(command string, args ...string) error {
 	return err
 }
 
+func ExecCapture(command string, args ...string) (string, error) {
+	var ret string
+	var err error
+
+	for range Only.Once {
+		cmdLog.Printf("Exec START: %s %v\n", command, args)
+
+		cmd := exec.Command(command, args...)
+
+		var stdout io.ReadCloser
+		stdout, err = cmd.StdoutPipe()
+		if err != nil {
+			break
+		}
+
+		// start the command after having set up the pipe
+		err = cmd.Start()
+		if err != nil {
+			break
+		}
+
+		// read command's stdout line by line
+		in := bufio.NewScanner(stdout)
+
+		for in.Scan() {
+			ret += in.Text()
+			cmdLog.Printf(in.Text()) // write each line to your log, or anything you need
+		}
+
+		err = in.Err()
+		if err != nil {
+			cmdLog.Printf("error: %s", err)
+		}
+
+		// cmdLog.Printf("Exec STOP: %s %v\n", command, args)
+	}
+
+	return ret, err
+}
 
 func Exec1(command string, args ...string) error {
 	var err error
@@ -79,8 +118,8 @@ func Exec1(command string, args ...string) error {
 		cmd := exec.Command(command, args...)
 
 		var stdoutBuf, stderrBuf bytes.Buffer
-		cmd.Stdout = io.MultiWriter(&stdoutBuf)	// os.Stdout, &stdoutBuf)
-		cmd.Stderr = io.MultiWriter(&stderrBuf)	// os.Stderr, &stderrBuf)
+		cmd.Stdout = io.MultiWriter(&stdoutBuf) // os.Stdout, &stdoutBuf)
+		cmd.Stderr = io.MultiWriter(&stderrBuf) // os.Stderr, &stderrBuf)
 
 		err = cmd.Run()
 		if err != nil {
@@ -100,7 +139,6 @@ func Exec1(command string, args ...string) error {
 
 	return err
 }
-
 
 func Exec2(command string, args ...string) error {
 	var err error
@@ -173,7 +211,6 @@ func copyAndCapture(w io.Writer, r io.Reader) ([]byte, error) {
 	}
 }
 
-
 func Exec3(command string, args ...string) error {
 	var err error
 
@@ -227,7 +264,7 @@ func Exec3(command string, args ...string) error {
 // data written to it and passes it to w
 type CapturingPassThroughWriter struct {
 	buf bytes.Buffer
-	w io.Writer
+	w   io.Writer
 }
 
 // NewCapturingPassThroughWriter creates new CapturingPassThroughWriter

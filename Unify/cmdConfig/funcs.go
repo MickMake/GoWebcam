@@ -7,7 +7,6 @@ import (
 	"strings"
 )
 
-
 // func bindFlags(cmd *cobra.Command, v *viper.Viper) error {
 // 	var err error
 //
@@ -47,13 +46,12 @@ func showArgs(cmd *cobra.Command, args []string) {
 	fmt.Println("")
 }
 
-func fillArray(count int, args []string) []string {
+func FillArray(count int, args []string) []string {
 	var ret []string
 	for range Only.Once {
-		//
-		// if len(args) == 0 {
-		//	break
-		// }
+		if len(args) > count {
+			count = len(args)
+		}
 		ret = make([]string, count)
 		for i, e := range args {
 			ret[i] = e

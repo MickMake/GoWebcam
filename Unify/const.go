@@ -9,7 +9,7 @@ const (
 	flagTimeout    = "timeout"
 
 	defaultConfig  = ""
-	defaultTimeout  = time.Second * 30
-	defaultDebug  = false
-	defaultQuiet  = false
+	defaultTimeout = time.Second * 30
+	defaultDebug   = false
+	defaultQuiet   = false
 )

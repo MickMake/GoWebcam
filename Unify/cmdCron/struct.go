@@ -14,26 +14,24 @@ import (
 	"time"
 )
 
-
 type Cron struct {
 	Scheduler *gocron.Scheduler
 	Job       *gocron.Job
 	Error     error
 
-	cmd       *cobra.Command
-	SelfCmd   *cobra.Command
+	cmd     *cobra.Command
+	SelfCmd *cobra.Command
 }
-
 
 func New() *Cron {
 	var ret *Cron
 
 	for range Only.Once {
-		ret = &Cron {
+		ret = &Cron{
 			Scheduler: gocron.NewScheduler(time.Local),
-			Error: nil,
+			Error:     nil,
 
-			cmd: nil,
+			cmd:     nil,
 			SelfCmd: nil,
 		}
 	}
@@ -63,7 +61,7 @@ func (c *Cron) PrintJobs() {
 		table.SetHeader([]string{"Job", "Last Run", "Next Run", "Run Count", "Running", "Error"})
 		for _, key := range jobs {
 			job := crontab[key]
-			table.Append([]string {
+			table.Append([]string{
 				strings.Join(job.Tags(), " "),
 				job.LastRun().Format("2006/01/02 15:04:05"),
 				job.NextRun().Format("2006/01/02 15:04:05"),

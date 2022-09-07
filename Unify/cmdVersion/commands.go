@@ -12,8 +12,8 @@ import (
 	"os"
 )
 
-
 const Group = "Version"
+
 func (v *Version) AttachCommands(cmd *cobra.Command, disableVflag bool) State {
 	for range Only.Once {
 		if cmd == nil {
@@ -21,7 +21,7 @@ func (v *Version) AttachCommands(cmd *cobra.Command, disableVflag bool) State {
 		}
 		v.cmd = cmd
 
-		v.SelfCmd = &cobra.Command {
+		v.SelfCmd = &cobra.Command{
 			Use:                   CmdVersion,
 			Short:                 fmt.Sprintf("Self-manage this executable."),
 			Long:                  fmt.Sprintf("Self-manage this executable."),
@@ -37,7 +37,7 @@ func (v *Version) AttachCommands(cmd *cobra.Command, disableVflag bool) State {
 		v.SelfCmd.Example = cmdHelp.PrintExamples(v.SelfCmd, "")
 		v.SelfCmd.Annotations = map[string]string{"group": Group}
 
-		var selfUpdateCmd = &cobra.Command {
+		var selfUpdateCmd = &cobra.Command{
 			Use:                   CmdSelfUpdate,
 			Short:                 fmt.Sprintf("Update version of executable."),
 			Long:                  fmt.Sprintf("Check and update the latest version."),
@@ -53,7 +53,7 @@ func (v *Version) AttachCommands(cmd *cobra.Command, disableVflag bool) State {
 		selfUpdateCmd.Example = cmdHelp.PrintExamples(v.SelfCmd, "")
 		selfUpdateCmd.Annotations = map[string]string{"group": Group}
 
-		var versionCheckCmd = &cobra.Command {
+		var versionCheckCmd = &cobra.Command{
 			Use:                   CmdVersionCheck,
 			Short:                 fmt.Sprintf("Check and show any version updates."),
 			Long:                  fmt.Sprintf("Check and show any version updates."),
@@ -69,7 +69,7 @@ func (v *Version) AttachCommands(cmd *cobra.Command, disableVflag bool) State {
 		versionCheckCmd.Example = cmdHelp.PrintExamples(v.SelfCmd, "")
 		versionCheckCmd.Annotations = map[string]string{"group": Group}
 
-		var versionListCmd = &cobra.Command {
+		var versionListCmd = &cobra.Command{
 			Use:                   CmdVersionList,
 			Short:                 fmt.Sprintf("List available versions."),
 			Long:                  fmt.Sprintf("List available versions."),
@@ -85,7 +85,7 @@ func (v *Version) AttachCommands(cmd *cobra.Command, disableVflag bool) State {
 		versionListCmd.Example = cmdHelp.PrintExamples(v.SelfCmd, "")
 		versionListCmd.Annotations = map[string]string{"group": Group}
 
-		var versionInfoCmd = &cobra.Command {
+		var versionInfoCmd = &cobra.Command{
 			Use:                   CmdVersionInfo,
 			Short:                 fmt.Sprintf("Info on current version."),
 			Long:                  fmt.Sprintf("Info on current version."),
@@ -101,7 +101,7 @@ func (v *Version) AttachCommands(cmd *cobra.Command, disableVflag bool) State {
 		versionInfoCmd.Example = cmdHelp.PrintExamples(v.SelfCmd, "")
 		versionInfoCmd.Annotations = map[string]string{"group": Group}
 
-		var versionLatestCmd = &cobra.Command {
+		var versionLatestCmd = &cobra.Command{
 			Use:                   CmdVersionLatest,
 			Short:                 fmt.Sprintf("Info on latest version."),
 			Long:                  fmt.Sprintf("Info on latest version."),
@@ -117,7 +117,7 @@ func (v *Version) AttachCommands(cmd *cobra.Command, disableVflag bool) State {
 		versionLatestCmd.Example = cmdHelp.PrintExamples(v.SelfCmd, "")
 		versionLatestCmd.Annotations = map[string]string{"group": Group}
 
-		var versionUpdateCmd = &cobra.Command {
+		var versionUpdateCmd = &cobra.Command{
 			Use:                   CmdVersionUpdate,
 			Short:                 fmt.Sprintf("Update version of this executable."),
 			Long:                  fmt.Sprintf("Check and update the latest version of this executable."),
@@ -275,6 +275,10 @@ func (v *Version) FlagCheckVersion(cmd *cobra.Command) bool {
 }
 
 func (v *Version) CmdHelp() State {
+	// if state := su.IsNil(); state.IsError() {
+	// 	return state
+	// }
+
 	err := v.SelfCmd.Help()
 	if err != nil {
 		v.State.SetError(err.Error())

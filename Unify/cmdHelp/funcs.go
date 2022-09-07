@@ -10,7 +10,6 @@ import (
 	"strings"
 )
 
-
 // func (h *Help) PrintConfig(cmd *cobra.Command) {
 // 	for range Only.Once {
 // 		// fmt.Printf("Config file '%s':\n", Cmd.ConfigFile)	// @TODO - fixup.
@@ -78,7 +77,15 @@ func PrintConfig(cmd *cobra.Command, prefix string) {
 				sh = "-" + flag.Shorthand
 			}
 
-			value := flag.Value.String()
+			var value string
+			foo := flag.Value.Type()
+			switch foo {
+				case "stringArray":
+					va, _ := cmd.Flags().GetStringArray(flag.Name)
+					value = va[0]
+				default:
+					value = flag.Value.String()
+			}
 			if value == flag.DefValue {
 				value += " *"
 			}
@@ -96,7 +103,6 @@ func PrintConfig(cmd *cobra.Command, prefix string) {
 		table.Render()
 	}
 }
-
 
 func PrintExamples(cmd *cobra.Command, examples ...string) string {
 	var ret string
