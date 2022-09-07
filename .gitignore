@@ -1,6 +1,10 @@
-images/*
+bin/Go*
 dist/*
-bin/*
+#!dist/GoWhen_linux_amd64*
+data/
+.*.swp
+
+images/*
 *.log
 *.sh
 *.pid
