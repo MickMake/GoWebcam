@@ -1,7 +1,7 @@
 package mmWebcam
 
 import (
-	"GoWebcam/Only"
+	"github.com/MickMake/GoUnify/Only"
 	"crypto/md5"
 	"encoding/hex"
 	"errors"

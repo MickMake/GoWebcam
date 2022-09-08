@@ -1,8 +1,8 @@
 package mmWebcam
 
 import (
-	"GoWebcam/Only"
-	"GoWebcam/Unify/cmdLog"
+	"github.com/MickMake/GoUnify/Only"
+	"github.com/MickMake/GoUnify/cmdLog"
 	"errors"
 	"fmt"
 	"io"

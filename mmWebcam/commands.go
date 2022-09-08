@@ -1,11 +1,12 @@
 package mmWebcam
 
 import (
-	"GoWebcam/Only"
-	"GoWebcam/Unify/cmdCron"
-	"GoWebcam/Unify/cmdHelp"
-	"GoWebcam/Unify/cmdLog"
 	"fmt"
+	"github.com/MickMake/GoUnify/Only"
+	"github.com/MickMake/GoUnify/cmdCron"
+	"github.com/MickMake/GoUnify/cmdExec"
+	"github.com/MickMake/GoUnify/cmdHelp"
+	"github.com/MickMake/GoUnify/cmdLog"
 	"github.com/go-co-op/gocron"
 	"github.com/spf13/cobra"
 	"log"
@@ -277,7 +278,7 @@ func (w *Webcams) RunScript(name string) error {
 
 		job := w.Config.Scripts[id]
 
-		err = cmdCron.Exec(job.Cmd, job.Args...)
+		err = cmdExec.Exec(job.Cmd, job.Args...)
 	}
 
 	return err

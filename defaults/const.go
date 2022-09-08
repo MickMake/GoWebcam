@@ -15,7 +15,7 @@ var Examples string
 const (
 	Description     = "Golang Webcam fetcher"
 	BinaryName      = "GoWebcam"
-	BinaryVersion   = "1.0.6"
+	BinaryVersion   = "1.0.7"
 	SourceRepo      = "github.com/MickMake/" + BinaryName
 	BinaryRepo      = "github.com/MickMake/" + BinaryName
 

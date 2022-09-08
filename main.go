@@ -1,11 +1,11 @@
 package main
 
 import (
-	"GoWebcam/Only"
-	"GoWebcam/Unify"
 	"GoWebcam/defaults"
 	"GoWebcam/mmWebcam"
 	"fmt"
+	"github.com/MickMake/GoUnify/Unify"
+	"github.com/MickMake/GoUnify/Only"
 	"os"
 )
 
@@ -44,7 +44,7 @@ func Execute() error {
 				ReadMe:        defaults.Readme,
 				Examples:      defaults.Examples,
 			},
-			Unify.Flags {},
+		Unify.Flags {},
 		)
 
 		wc := mmWebcam.New()
