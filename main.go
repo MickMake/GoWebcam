@@ -4,8 +4,8 @@ import (
 	"GoWebcam/defaults"
 	"GoWebcam/mmWebcam"
 	"fmt"
-	"github.com/MickMake/GoUnify/Unify"
 	"github.com/MickMake/GoUnify/Only"
+	"github.com/MickMake/GoUnify/Unify"
 	"os"
 )
 
@@ -40,7 +40,7 @@ func Execute() error {
 				SourceRepo:    defaults.SourceRepo,
 				BinaryRepo:    defaults.BinaryRepo,
 				EnvPrefix:     defaults.EnvPrefix,
-				HelpTemplate:  defaults.HelpTemplate,
+				HelpSummary:   defaults.HelpSummary,
 				ReadMe:        defaults.Readme,
 				Examples:      defaults.Examples,
 			},
