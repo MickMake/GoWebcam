@@ -2,10 +2,29 @@ module GoWebcam
 
 go 1.18
 
-replace github.com/MickMake/GoUnify => ../../GoUnify
+replace github.com/MickMake/GoUnify v0.0.0-00010101000000-000000000000 => github.com/MickMake/GoUnify v0.0.0-20220923023100-6cf4e624a412
+
+replace github.com/MickMake/GoUnify/Only v0.0.0-00010101000000-000000000000 => github.com/MickMake/GoUnify/Only v0.0.0-20220923023100-6cf4e624a412
+
+replace github.com/MickMake/GoUnify/cmdHelp v0.0.0-00010101000000-000000000000 => github.com/MickMake/GoUnify/cmdHelp v0.0.0-20220923023100-6cf4e624a412
+
+replace github.com/MickMake/GoUnify/cmdLog v0.0.0-00010101000000-000000000000 => github.com/MickMake/GoUnify/cmdLog v0.0.0-20220923023100-6cf4e624a412
+
+replace github.com/MickMake/GoUnify/cmdConfig v0.0.0-00010101000000-000000000000 => github.com/MickMake/GoUnify/cmdConfig v0.0.0-20220923023100-6cf4e624a412
+
+replace github.com/MickMake/GoUnify/cmdDaemon v0.0.0-00010101000000-000000000000 => github.com/MickMake/GoUnify/cmdDaemon v0.0.0-20220923023100-6cf4e624a412
+
+replace github.com/MickMake/GoUnify/cmdShell v0.0.0-00010101000000-000000000000 => github.com/MickMake/GoUnify/cmdShell v0.0.0-20220923023100-6cf4e624a412
+
+replace github.com/MickMake/GoUnify/cmdVersion v0.0.0-00010101000000-000000000000 => github.com/MickMake/GoUnify/cmdVersion v0.0.0-20220923023100-6cf4e624a412
 
 require (
-	github.com/MickMake/GoUnify v0.0.0-00010101000000-000000000000
+	github.com/MickMake/GoUnify/Only v0.0.0-00010101000000-000000000000
+	github.com/MickMake/GoUnify/Unify v0.0.0-20220923023100-6cf4e624a412
+	github.com/MickMake/GoUnify/cmdCron v0.0.0-20220923023100-6cf4e624a412
+	github.com/MickMake/GoUnify/cmdExec v0.0.0-20220923023100-6cf4e624a412
+	github.com/MickMake/GoUnify/cmdHelp v0.0.0-00010101000000-000000000000
+	github.com/MickMake/GoUnify/cmdLog v0.0.0-00010101000000-000000000000
 	github.com/go-co-op/gocron v1.17.0
 	github.com/spf13/cobra v1.5.0
 )
@@ -13,6 +32,10 @@ require (
 require (
 	github.com/MichaelMure/go-term-markdown v0.1.4 // indirect
 	github.com/MichaelMure/go-term-text v0.3.1 // indirect
+	github.com/MickMake/GoUnify/cmdConfig v0.0.0-00010101000000-000000000000 // indirect
+	github.com/MickMake/GoUnify/cmdDaemon v0.0.0-00010101000000-000000000000 // indirect
+	github.com/MickMake/GoUnify/cmdShell v0.0.0-00010101000000-000000000000 // indirect
+	github.com/MickMake/GoUnify/cmdVersion v0.0.0-00010101000000-000000000000 // indirect
 	github.com/abiosoft/ishell/v2 v2.0.2 // indirect
 	github.com/abiosoft/readline v0.0.0-20180607040430-155bce2042db // indirect
 	github.com/alecthomas/chroma v0.7.1 // indirect
@@ -60,7 +83,7 @@ require (
 	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4 // indirect
 	golang.org/x/image v0.0.0-20191206065243-da761ea9ff43 // indirect
 	golang.org/x/net v0.0.0-20220624214902-1bab6f366d9e // indirect
-	golang.org/x/oauth2 v0.0.0-20220822191816-0ebed06d0094 // indirect
+	golang.org/x/oauth2 v0.0.0-20220909003341-f21342109be1 // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
 	golang.org/x/sys v0.0.0-20220907062415-87db552b00fd // indirect
 	golang.org/x/text v0.3.7 // indirect
